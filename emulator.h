@@ -1,24 +1,68 @@
 #include <stdint.h>
+#include "cartridge.h"
+
+#define RAM_BANKS 4
+#define RAM_BANK_SIZE 0x4000
+
+#define CYCLES_PER_FRAME 277777
 
 typedef enum {
-	EMUFLAG_NONE = 0b00000000,
-	EMUFLAG_RUNNING = 0b00000001,
-	EMUFLAG_ROMLOADED = 0b00000010
+	EMU_NONE       = 0b00000000,
+	EMU_RUNNING    = 0b00000001,
+	EMU_ROM_LOADED = 0b00000010
 } EmulatorFlags;
 
 typedef enum {
-	EXEC_NORMAL        = 0b00000000,
-	EXEC_PAUSED        = 0b00000001,
-	EXEC_FRAME_STEPPED = 0b00000010,
-	EXEC_CYCLE_STEPPED = 0b00000011
+	EXEC_IDLE,
+	EXEC_NORMAL,
+	EXEC_PAUSED,
+	EXEC_STEPPED,
 } ExecutionMode;
 
-extern uint8_t gEmulatorFlags;
+typedef enum {
+	CTRL_READ = 0b00000001,
+	CTRL_WRITE = 0b00000010
+} ControlMode;
+
+typedef enum {
+	LOAD_SUCCESS,
+	LOAD_FAILED,
+	LOAD_INVALLID_HEADER,
+	LOAD_ALLOC_FAILED
+};
+
+extern Cartridge gCartridge;
+
+//extern uint8_t gEmulatorFlags;
 extern uint8_t gExecutionMode;
 extern uint64_t gTotalCycles;
 
-void EmuInit(void);
-void EmuUpdate(uint64_t delta);
-void EmuStepCycle(void);
+extern uint64_t gCurCycle;
+
+extern uint16_t gAddressBus;
+extern uint8_t gDataBus;
+
+extern uint8_t gControlBus;
+
+void emu_init(void);
+void emu_update_frame();
+void emu_run_cycle(void);
+
+void emu_stop(void);
+void emu_halt(void);
+
+uint8_t load_rom(const char* path);
+
+uint8_t read_rom(uint8_t bank, uint16_t address);
+uint8_t read_rom_flat(uint32_t globalAddress);
+
+uint8_t read_iram(uint8_t bank, uint16_t address);
+uint8_t read_iram_flat(uint32_t globalAddress);
+
+void write_iram(uint8_t bank, uint16_t address, uint8_t value);
+void write_iram_flat(uint32_t globalAddress, uint8_t value);
+
+void write_eram(uint8_t bank, uint16_t address, uint8_t value);
+void write_eram_flat(uint32_t globalAddress, uint8_t value);
 
 #pragma once

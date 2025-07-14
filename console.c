@@ -1,36 +1,150 @@
 #include "console.h"
 #include "cpu.h"
-#include "rom.h"
 #include "emulator.h"
 
-void command_out(const char* fmt, ...) {
+// Values
+char gCliInputBuffer[CLI_INPUT_BUFFER_S];
+CRITICAL_SECTION gCliMutex;
+
+volatile LONG gShouldExit = 0;
+
+// Function to print the about, during clear and init
+void cli_about() {
+    printf("KM-8\n");
+    printf("|Version: inDev1\n");
+    printf("|Author: shiftless\n");
+    printf("|Description: I'm building a custom old school console, first with emulator, then on FPGA and real hardware :)\n");
+}
+
+// Function used to print in the format of a command output, adds a " | " prefix, and a new line character
+void cli_lout(const char* fmt, ...) {
     printf(" | "); // Prompt or prefix
 
-    char buffer[COMMAND_BUFFER_SIZE];
+    char buffer[CLI_INPUT_BUFFER_S];
 
     va_list args;
     va_start(args, fmt);
-    vsnprintf(buffer, COMMAND_BUFFER_SIZE, fmt, args);
+    vsnprintf(buffer, CLI_INPUT_BUFFER_S, fmt, args);
     va_end(args);
 
     printf("%s\n", buffer);
-    fflush(stdout); // <-- Force output to appear
+    fflush(stdout);
 }
 
-static void CmdPing(char* args[], int argc) {
+// Highlighted out used for tables, adds the prefix, then the colored format, without a new line, encapsulated by []
+void cli_hout(const char* fmt, ...) {
+    printf(" | [");
+
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    SetConsoleTextAttribute(hConsole, 3);
+
+    char buffer[CLI_INPUT_BUFFER_S];
+
+    va_list args;
+    va_start(args, fmt);
+    vsnprintf(buffer, CLI_INPUT_BUFFER_S, fmt, args);
+    va_end(args);
+
+    printf("%s", buffer);
+    fflush(stdout);
+
+    SetConsoleTextAttribute(hConsole, 0x7);
+
+    printf("] ");
+}
+
+// Warn print
+void cli_warn(const char* fmt, ...) {
+    printf(" | ");
+
+    // Print warning prefix
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+
+    printf("Warning");
+    SetConsoleTextAttribute(hConsole, 7);
+
+
+    char buffer[CLI_INPUT_BUFFER_S];
+
+    va_list args;
+    va_start(args, fmt);
+    vsnprintf(buffer, CLI_INPUT_BUFFER_S, fmt, args);
+    va_end(args);
+
+    printf(": %s\n", buffer);
+    fflush(stdout);
+}
+
+// Reset cursor pos
+void cli_reset_cursor() {
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    CONSOLE_SCREEN_BUFFER_INFO info;
+
+    if (GetConsoleScreenBufferInfo(hConsole, &info)) {
+        COORD cursorPos = { 0, info.dwCursorPosition.Y }; // X = 0 (column), Y = current row
+        SetConsoleCursorPosition(hConsole, cursorPos);
+    }
+}
+
+// Runtime print
+void cli_runtime_out(const char* fmt, ...) {
+    cli_reset_cursor();
+    // Print warning prefix
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_INTENSITY);
+
+    printf("Runtime");
+    SetConsoleTextAttribute(hConsole, 7);
+
+    char buffer[CLI_INPUT_BUFFER_S];
+
+    va_list args;
+    va_start(args, fmt);
+    vsnprintf(buffer, CLI_INPUT_BUFFER_S, fmt, args);
+    va_end(args);
+
+    printf(": %s\n", buffer);
+    fflush(stdout);
+}
+
+// Runtime exception print
+void cli_runtime_err_out(const char* fmt, ...) {
+    cli_reset_cursor();
+    // Print warning prefix
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_INTENSITY);
+
+    printf("Runtime Exception");
+    SetConsoleTextAttribute(hConsole, 7);
+
+    char buffer[CLI_INPUT_BUFFER_S];
+
+    va_list args;
+    va_start(args, fmt);
+    vsnprintf(buffer, CLI_INPUT_BUFFER_S, fmt, args);
+    va_end(args);
+
+    printf(": %s\n", buffer);
+    fflush(stdout);
+}
+
+// First test command to test console commands
+static void cmd_ping(char* args[], int argc) {
     if (argc != 1)
     {
-        command_out("Warning: expected 0 arguments!");
+        cli_warn("Expected 0 arguments!");
         return;
     }
 
-    command_out("Pong!");
+    cli_lout("Pong!");
 }
 
-static void CmdPrintOpcodes(char* args[], int argc) {
+// Prints all opcodes to the console window
+static void cmd_pr_opcodes(char* args[], int argc) {
     if (argc != 1)
     {
-        command_out("Warning: expected 0 arguments!");
+        cli_warn("Expected 0 arguments!");
         return;
     }
 
@@ -40,6 +154,7 @@ static void CmdPrintOpcodes(char* args[], int argc) {
         if (gOpcodes[i].size == 0)
             continue;
 
+        // This gives a name to the operand type
         const char* operand0 = "???";
         switch (gOpcodes[i].operands[0].type) {
         case OPERAND_NIL: operand0 = "nil"; break;
@@ -57,109 +172,183 @@ static void CmdPrintOpcodes(char* args[], int argc) {
         }
 
         opcodeCount++;
-        command_out("[0x%02X] %-4.4s %-4.4s %-4.4s", i, gOpcodes[i].mnemonic, operand0, operand1);
+        cli_hout("0x%02X", i);
+        printf("%-4.4s %-4.4s %-4.4s\n", gOpcodes[i].mnemonic, operand0, operand1);
     }
 
-    command_out("");
-    command_out("Total: %d", opcodeCount);
+    cli_lout("");
+    cli_lout("Total: %d", opcodeCount);
 }
 
-static void CmdLoad(char* args[], int argc) {
+// Loads a rom into memory, sets the rom loaded flags
+static void cmd_rom_load(char* args[], int argc) {
     if (argc != 2)
     {
-        command_out("Warning: expected 1 arguments! (load <file path>)");
+        cli_warn("Expected 1 arguments! (load <file path>)");
         return;
     }
 
-    uint8_t r = RomLoad(args[1]);
+    uint8_t r = load_rom(args[1]);
 
     switch (r)
     {
-        case LOAD_SIZEWARN:
-            command_out("Warning: rom size mismatch!");
-        case LOAD_SUCCESS:
-            command_out("Loaded rom!");
-            break;
-
         case LOAD_FAILED:
-            command_out("Warning: could not load rom!");
-            break;
+            cli_warn("Could not load rom!");
+            return;
+
+        case LOAD_INVALLID_HEADER:
+            cli_warn("Invallid header!");
+            return;
+
+        case LOAD_ALLOC_FAILED:
+            cli_warn("Allocation failed!");
+            return;
     }
 
-    gEmulatorFlags |= EMUFLAG_ROMLOADED;
+    cli_lout("Loaded rom succesfully!");
+    cli_lout("");
+    cli_lout("Title: %s", gCartridge.header.game_title);
+    cli_lout("Rom size: %dKb", (gCartridge.header.rom_size * CART_ROM_BANK_S) / 1024);
+    cli_lout("Ram size: %dKb", (gCartridge.header.ram_size * CART_RAM_BANK_S) / 1024);
 }
 
-static void CmdRomView(char* args[], int argc) {
-    if (argc != 2)
+// Views a address in rom
+static void cmd_view_rom(char* args[], int argc) {
+    if (gCartridge.rom == NULL)
     {
-        command_out("Warning: expected 1 arguments! (rom_view <address>)");
+        cli_warn("No rom was loaded!");
         return;
     }
 
-    uint16_t value = atoi(args[1]);
-    command_out("[0x%02X] %d", value, RomRead(value));
+    if (argc <= 2 || argc > 3)
+    {
+        cli_warn("Expected 1 arguments! (view_rom <address> [length])");
+        return;
+    }
+    
+    // Get the arguments
+    uint32_t address = (uint32_t)strtoul(args[1], NULL, 0);
+
+    uint32_t length = 1;
+    if (argc == 3)
+        length = (uint32_t)strtoul(args[2], NULL, 0);
+
+
+    for (int i = 0; i < length; i++) {
+        uint8_t value = read_rom_flat(address + i);
+
+        char bin[9];
+        for (int i = 7; i >= 0; i--)
+            bin[7 - i] = ((value >> i) & 1) ? '1' : '0';
+        bin[8] = '\0';
+
+        char c = (value >= 32 && value <= 126) ? value : '.';
+        cli_hout("0x%08X", address + i);
+        printf("0x%02X %3d %s %c\n", value, value, bin, c);
+    }
 }
 
-static void CmdEmuStart(char* args[], int argc) {
+// Views addresses in internal ram
+static void cmd_view_iram(char* args[], int argc) {
+    if (argc <= 2 || argc > 3)
+    {
+        cli_warn("Expected 1 arguments! (view_iram <address> [length])");
+        return;
+    }
+
+    // Get the arguments
+    uint32_t address = (uint32_t)strtoul(args[1], NULL, 0);
+
+    uint32_t length = 1;
+    if (argc == 3)
+        length = (uint32_t)strtoul(args[2], NULL, 0);
+
+
+    for (int i = 0; i < length; i++) {
+        uint8_t value = read_iram_flat(address + i);
+
+        char bin[9];
+        for (int i = 7; i >= 0; i--)
+            bin[7 - i] = ((value >> i) & 1) ? '1' : '0';
+        bin[8] = '\0';
+
+        char c = (value >= 32 && value <= 126) ? value : '.';
+        cli_hout("0x%08X", address + i);
+        printf("0x%02X %3d %s %c\n", value, value, bin, c);
+    }
+}
+
+// Views addresses in external ram
+static void cmd_view_eram(char* args[], int argc) {
+    if (gCartridge.rom == NULL)
+    {
+        cli_warn("No rom was loaded!");
+        return;
+    }
+
+    if (argc <= 2 || argc > 3)
+    {
+        cli_warn("Expected 1 arguments! (view_eram <address> [length])");
+        return;
+    }
+
+    // Get the arguments
+    uint32_t address = (uint32_t)strtoul(args[1], NULL, 0);
+
+    uint32_t length = 1;
+    if (argc == 3)
+        length = (uint32_t)strtoul(args[2], NULL, 0);
+
+
+    for (int i = 0; i < length; i++) {
+        uint8_t value = read_eram_flat(address + i);
+
+        char bin[9];
+        for (int i = 7; i >= 0; i--)
+            bin[7 - i] = ((value >> i) & 1) ? '1' : '0';
+        bin[8] = '\0';
+
+        char c = (value >= 32 && value <= 126) ? value : '.';
+        cli_hout("0x%08X", address + i);
+        printf("0x%02X %3d %s %c\n", value, value, bin, c);
+    }
+}
+
+// Starts the emulation, if the emu loaded flag is set.
+// Also sets the running flag, so the CPU can start running :)
+static void cmd_emu_start(char* args[], int argc) {
     if (argc != 1)
     {
-        command_out("Warning: expected 0 arguments!");
+        cli_warn("Expected 0 arguments!");
         return;
     }
 
-    if ((gEmulatorFlags & EMUFLAG_ROMLOADED) == 0)
+    if (gCartridge.rom == NULL)
     {
-        command_out("Warning: no rom was loaded!");
+        cli_warn("No rom was loaded!");
         return;
 
     }
     
-    command_out("Starting emulation...");
+    cli_lout("Starting emulation...");
 
-    EmuInit();
-    gEmulatorFlags |= EMUFLAG_RUNNING;
+    emu_init();
+    gExecutionMode = EXEC_NORMAL;
+    gCpuCurrState = CPU_FETCH_OPCODE;
 }
-
-
-static void CmdEmuSet(char* args[], int argc)
-{
-    if (argc != 3)
-    {
-        command_out("Warning: expected 3 arguments!");
-        return;
-    }
-
-    char* t = args[1];
-    if (strcmp(t, "exec_mode") == 0) {
-        if (strcmp(args[2], "normal") == 0) {
-            gExecutionMode = EXEC_NORMAL;
-            command_out("Set execution mode to normal.");
-
-        }
-        else if (strcmp(args[2], "cycle_stepped") == 0) {
-            gExecutionMode = EXEC_CYCLE_STEPPED;
-            command_out("Set execution mode to cycle stepped.");
-        }
-        else {
-            command_out("Warning: invallid value!");
-        }
-    }
-    else {
-        command_out("Warning: invallid name!");
-    }
-}
-
 
 static Command gCommandTable[] = {
-    { "ping", "Prints pong to the log.", CmdPing },
-    { "pr_opcodes", "Prints all opcodes to the log.", CmdPrintOpcodes },
-    { "rom_load", "Loads a file into rom. Usage: rom_load <path>.", CmdLoad },
-    { "rom_view", "Reads a value from rom at address. Usage: rom_view <address>.", CmdRomView },
-    { "emu_start", "Starts the emulation.", CmdEmuStart },
-    { "emu_set", "Starts the emulation. Usage: emu_set <name> <value>", CmdEmuSet }
+    { "ping", "Prints pong to the log.", cmd_ping },
+    { "pr_opcodes", "Prints all opcodes to the log.", cmd_pr_opcodes },
+    { "rom_load", "Loads a file into rom. Usage: rom_load <path>.", cmd_rom_load },
+    { "view_rom", "Reads a value from rom at address range. Usage: rom_view <address> [length].", cmd_view_rom },
+    { "view_iram", "Reads a value from internal memory at address range. Usage: rom_view <address> [length].", cmd_view_iram },
+    { "view_eram", "Reads a value from external memory at address range. Usage: rom_view <address> [length].", cmd_view_eram },
+    { "emu_start", "Starts the emulation.", cmd_emu_start },
 };
 
-int TokenizeCommand(char* command, char* tokens[MAX_TOKENS]) {
+// Here i tokenize a input string into seperate tokens, where it takes account of "" marked fields
+int tokenize_command(char* command, char* tokens[MAX_TOKENS]) {
     uint8_t inString = 0;
     uint8_t tokenCount = 0;
 
@@ -205,7 +394,7 @@ int TokenizeCommand(char* command, char* tokens[MAX_TOKENS]) {
     return tokenCount;
 }
 
-void ExecuteCommand(char* tokens[], int argc) {
+void execute_command(char* tokens[], int argc) {
     if (argc == 0) return;
 
     for (int i = 0; gCommandTable[i].name != NULL; ++i) {
@@ -215,37 +404,70 @@ void ExecuteCommand(char* tokens[], int argc) {
         }
     }
 
-    command_out("Unknown command: %s", tokens[0]);
+    cli_warn("Unknown command %s!", tokens[0]);
 }
 
-DWORD WINAPI ConsoleThread(LPVOID param) {
-    printf("Retro Console Emulator\n");
-    printf("|Version: inDev1\n");
-    printf("|Author: shiftless\n");
-    printf("|Description: I'm building a custom old school console, first with emulator, then on FPGA and real hardware :)\n");
+void cli_process_input() {
+    if (gCliInputBuffer[0] == 0)
+        return;
 
-    char line[COMMAND_BUFFER_SIZE];
-    char* tokens[MAX_TOKENS];
+    static char* tokens[MAX_TOKENS];
+    int tokenCount = tokenize_command(gCliInputBuffer, tokens);
 
-    printf("\n > ");
-    while (fgets(line, sizeof(line), stdin)) {
-        size_t len = strlen(line);
-        if (len > 0 && line[len - 1] == '\n')
-            line[len - 1] = '\0';
+    if (strcmp(tokens[0], "help") == 0) {
+        for (int i = 0; i < sizeof(gCommandTable) / sizeof(Command); i++)
+            cli_lout("%-16s %s", gCommandTable[i].name, gCommandTable[i].description);
 
-        int tokenCount = TokenizeCommand(line, tokens);
+        memset(gCliInputBuffer, 0, CLI_INPUT_BUFFER_S);
+        return;
+    }
 
-        if (strcmp(tokens[0], "help") == 0) {
-            for (int i = 0; i < sizeof(gCommandTable) / sizeof(Command); i++)
-                command_out("%-16s %s", gCommandTable[i].name, gCommandTable[i].description);
+    execute_command(tokens, tokenCount);
+    memset(gCliInputBuffer, 0, CLI_INPUT_BUFFER_S);
+}
 
-            printf("\n > ");
+DWORD WINAPI cli_thread_func(LPVOID param) {
+    // Do some setup
+    HANDLE hStdin = GetStdHandle(STD_INPUT_HANDLE);
+    char line[CLI_INPUT_BUFFER_S];
+
+    InitializeCriticalSection(&gCliMutex);
+
+    cli_about();
+
+    // Enter main loop
+    while (!gShouldExit)
+    {
+        EnterCriticalSection(&gCliMutex);
+        if (gCliInputBuffer[0] != 0)
+        {
+            LeaveCriticalSection(&gCliMutex);
             continue;
         }
-
-        ExecuteCommand(tokens, tokenCount);
-
         printf("\n > ");
+
+        // Read the line
+        DWORD read = 0;
+        ReadConsoleA(hStdin, line, CLI_INPUT_BUFFER_S, &read, NULL);
+
+        // Null terminate
+        line[(read < CLI_INPUT_BUFFER_S) ? read : (CLI_INPUT_BUFFER_S - 1)] = '\0';
+
+        // Trim trailing newline(s)
+        while (read > 0 && (line[read - 1] == '\n' || line[read - 1] == '\r'))
+            line[--read] = '\0';
+
+        // Critical section to write shared buffer
+        
+        memcpy(gCliInputBuffer, line, CLI_INPUT_BUFFER_S);
+        LeaveCriticalSection(&gCliMutex);
+
+        //printf("\n > "); // Prompt again
     }
     return 0;
 }
+
+void cli_exit() {
+    DeleteCriticalSection(&gCliMutex);
+}
+

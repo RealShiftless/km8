@@ -6,11 +6,36 @@
 
 uint64_t last_time = 0;
 
-void Init() {
-    CpuInit();
-    
-    /*
+void init() {
+    cpu_init();
+    emu_init();
     last_time = now_nanos();
+
+    /*
+    LARGE_INTEGER freq, start, end;
+    QueryPerformanceFrequency(&freq);
+
+
+    load_rom("nop.bin");
+    gCpuCurrState = CPU_FETCH_OPCODE;
+    gProgramCounter = 0x0010;
+
+    QueryPerformanceCounter(&start);
+    const uint64_t perfCycles = CYCLES_PER_FRAME;
+    for (int i = 0; i < perfCycles; i++)
+    {
+        cpu_run_cycle();
+    }
+
+    QueryPerformanceCounter(&end); // End timing
+
+    double elapsed_ns = (double)(end.QuadPart - start.QuadPart) * 1e9 / freq.QuadPart;
+
+    printf("Executed %d cycles in %.2f ns (%.5f s)\n", perfCycles, elapsed_ns, elapsed_ns / 1000000000.0);
+    printf("Average per cycle: %.2f ns\n", elapsed_ns / perfCycles);
+    */
+
+    /*
 
 
     uint64_t tS = now_nanos();
@@ -35,23 +60,16 @@ void Init() {
     printf("Total Cycles: %" PRIu64 "\n", gTotalCycles);
     */
 }
+void on_exit() {
+    cli_exit();
+}
 
-void KeyEvent(uint8_t key, uint8_t state) {
+void key_event(uint8_t key, uint8_t state) {
 
 }
 
-void UpdateFrame() {
-    uint64_t now = now_nanos();
-    uint64_t delta = now - last_time;
-    last_time = now;
-
-    // If window was moved, reset delta to 0 (optional logic here)
-    if (delta > MAX_CYCLE_DELTA) {
-        delta = 0;
-        //command_out("Running behind schedule!");
-    }
-
-    EmuUpdate(delta);
+void update_frame() {
+    emu_update_frame();
 }
 
     
@@ -68,8 +86,8 @@ int WINAPI WinMain(
     freopen_s(&fp, "CONOUT$", "w", stderr);
     freopen_s(&fp, "CONIN$", "r", stdin);
 
-    CreateThread(NULL, 0, ConsoleThread, NULL, 0, NULL);
+    CreateThread(NULL, 0, cli_thread_func, NULL, 0, NULL);
 
-    Game game = { Init, UpdateFrame, KeyEvent };
-    PlatformInit(hInstance, nCmdShow, &game);
+    Game game = { init, on_exit, update_frame, key_event };
+    platform_init(hInstance, nCmdShow, &game);
 }

@@ -1,5 +1,0 @@
-void TickCycle() {
-
-}
-
-#pragma once

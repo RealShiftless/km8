@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <string.h>
 
-#define COMMAND_BUFFER_SIZE 256
+#define CLI_INPUT_BUFFER_S 256
 #define TOKEN_BUFFER_SIZE 64
 #define MAX_TOKENS 8
 
@@ -15,8 +15,16 @@ typedef struct {
 	CommandFunc func;
 } Command;
 
-void command_out(const char* fmt, ...);
+void cli_lout(const char* fmt, ...);
 
-DWORD WINAPI ConsoleThread(LPVOID param);
+DWORD WINAPI cli_thread_func(LPVOID param);
+void cli_process_input(void);
+
+void cli_exit(void);
+
+void cli_about(void);
+
+void cli_runtime_out(const char* fmt, ...);
+void cli_runtime_err_out(const char* fmt, ...);
 
 #pragma once

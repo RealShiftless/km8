@@ -4,16 +4,15 @@
 
 //#define CLOCK_SPEED 16780000
 #define CLOCK_CYCLE_NS 5
-#define MAX_CYCLE_DELTA CLOCK_CYCLE_NS * 5
+#define MAX_CYCLE_DELTA (CLOCK_CYCLE_NS * 5)
 
 #define MAX_OPCODES 256
 #define MAX_MNEMONIC 4
 #define MAX_OPERANDS 2
+#define MAX_OPERAND_SIZE 2
+#define OPERAND_BUFFER_SIZE (MAX_OPERANDS * MAX_OPERAND_SIZE)
 
-typedef enum {
-	CTRL_READ  = 0b00000001,
-	CTRL_WRITE = 0b00000010
-};
+
 
 typedef enum {
 	CPU_FETCH_OPCODE,
@@ -25,10 +24,21 @@ typedef enum {
 } CpuState;
 
 typedef enum {
+	HALTCODE_MANUAL,
+	HALTCODE_INVALID_OPCODE,
+	HALTCODE_TRAP,
+	HALTCODE_STACK_OVERFLOW,
+	HALTCODE_BUS_FAULT,
+	HALTCODE_UNKNOWN,
+	HALTCODE_WRITE_PROTECTED,
+	HALTCODE_READ_PROTECTED
+};
+
+typedef enum {
 	OPCODE_NOP = 0x00,
 	OPCODE_LDR_MEM,
 	OPCODE_LDR_IMM,
-	OPCODE_STR_MEM,
+	OPCODE_STR_REG,
 	OPCODE_STR_IMM,
 	OPCODE_MOV,
 	OPCODE_SWAP,
@@ -135,16 +145,23 @@ typedef enum {
 	OPERAND_MEM
 };
 
+typedef enum {
+	EXECUTION_PENDING,
+	EXECUTION_SUCCES,
+	EXECUTION_FAILED,
+	EXECUTION_HALT
+};
+
 typedef struct {
 	uint8_t cur_opcode;
 	uint16_t opcode_pc;
+	uint64_t opcode_cycle;
 	uint8_t opcode_size;
 
 	uint8_t operandA_type;
-	uint16_t operandA;
-
 	uint8_t operandB_type;
-	uint16_t operandB;
+
+	uint8_t operand_buffer[OPERAND_BUFFER_SIZE];
 
 	uint16_t result;
 } CpuExecutionContext;
@@ -154,29 +171,26 @@ typedef struct {
 } Operand;
 
 typedef struct {
-	uint8_t address;
 	uint8_t size;
+	uint8_t cycles;
 
 	char mnemonic[MAX_MNEMONIC];
 	Operand operands[MAX_OPERANDS];
 } Operator;
 
-extern uint8_t gCpuState;
+extern uint8_t gCpuCurrState;
+extern uint8_t gCpuPrevState;
+
+extern uint8_t gCpuHaltCode;
 
 extern uint16_t gProgramCounter;
 extern uint16_t gStackPointer;
 extern uint8_t gRegisters[8];
 
-extern uint16_t gAddressBus;
-extern uint8_t gDataBus;
-
-extern uint8_t gControlBus;
-
-
 extern Operator gOpcodes[256];
 
-void CpuInit(void);
-void CpuStep(void);
+void cpu_init(void);
+void cpu_run_cycle(void);
 
 static inline uint8_t IsFlagSet(uint8_t v, uint8_t f) {
 	return (v & f) == f;
