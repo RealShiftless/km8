@@ -6,6 +6,7 @@
 #define IRAM_RANGE_MASK (RAM_BANK_SIZE - 1)
 #define ROM_RANGE_MASK (CART_ROM_BANK_S - 1)
 #define ERAM_RANGE_MASK (CART_RAM_BANK_S - 1)
+#define HRAM_RANGE_MASK (HRAM_SIZE - 1)
 
 typedef enum {
 	BUS_ROM_0,

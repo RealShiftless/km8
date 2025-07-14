@@ -1,6 +1,7 @@
 #include "console.h"
 #include "cpu.h"
 #include "emulator.h"
+#include "bus.h"
 
 // Values
 char gCliInputBuffer[CLI_INPUT_BUFFER_S];
@@ -92,7 +93,7 @@ void cli_runtime_out(const char* fmt, ...) {
     cli_reset_cursor();
     // Print warning prefix
     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-    SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_INTENSITY);
+    SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_INTENSITY);
 
     printf("Runtime");
     SetConsoleTextAttribute(hConsole, 7);
@@ -212,6 +213,66 @@ static void cmd_rom_load(char* args[], int argc) {
     cli_lout("Ram size: %dKb", (gCartridge.header.ram_size * CART_RAM_BANK_S) / 1024);
 }
 
+// View registers
+static void cmd_view_regs(char* args[], int argc) {
+    if (argc != 1)
+    {
+        cli_warn("Expected 0 arguments!");
+        return;
+    }
+
+    for (int i = 0; i < REGISTER_COUNT - 5; i++) {
+        uint8_t value = gRegisters[i];
+
+        char bin[9];
+        for (int i = 7; i >= 0; i--)
+            bin[7 - i] = ((value >> i) & 1) ? '1' : '0';
+        bin[8] = '\0';
+
+        char c = (value >= 32 && value <= 126) ? value : '.';
+        cli_hout("r%d", i);
+        printf("0x%02X %3d %s %c\n", value, value, bin, c);
+    }
+
+    cli_hout("sp");
+    printf("0x%04X\n", gStackPointer);
+
+    cli_hout("pc");
+    printf("0x%04X\n", gProgramCounter);
+}
+
+// Views in address space
+static void cmd_view(char* args[], int argc) {
+    if (argc < 2 || argc > 3)
+    {
+        cli_warn("Expected 1 arguments! (view <address> [length])");
+        return;
+    }
+
+    // Get the arguments
+    uint32_t address = (uint32_t)strtoul(args[1], NULL, 0);
+
+    uint32_t length = 1;
+    if (argc == 3)
+        length = (uint32_t)strtoul(args[2], NULL, 0);
+
+
+    for (int i = 0; i < length; i++) {
+        uint8_t value;
+        uint8_t latency;
+        bus_read(address + i, &value, &latency);
+
+        char bin[9];
+        for (int i = 7; i >= 0; i--)
+            bin[7 - i] = ((value >> i) & 1) ? '1' : '0';
+        bin[8] = '\0';
+
+        char c = (value >= 32 && value <= 126) ? value : '.';
+        cli_hout("0x%04X", address + i);
+        printf("0x%02X %3d %s %c\n", value, value, bin, c);
+    }
+}
+
 // Views a address in rom
 static void cmd_view_rom(char* args[], int argc) {
     if (gCartridge.rom == NULL)
@@ -220,7 +281,7 @@ static void cmd_view_rom(char* args[], int argc) {
         return;
     }
 
-    if (argc <= 2 || argc > 3)
+    if (argc < 2 || argc > 3)
     {
         cli_warn("Expected 1 arguments! (view_rom <address> [length])");
         return;
@@ -250,7 +311,7 @@ static void cmd_view_rom(char* args[], int argc) {
 
 // Views addresses in internal ram
 static void cmd_view_iram(char* args[], int argc) {
-    if (argc <= 2 || argc > 3)
+    if (argc < 2 || argc > 3)
     {
         cli_warn("Expected 1 arguments! (view_iram <address> [length])");
         return;
@@ -286,7 +347,7 @@ static void cmd_view_eram(char* args[], int argc) {
         return;
     }
 
-    if (argc <= 2 || argc > 3)
+    if (argc < 2 || argc > 3)
     {
         cli_warn("Expected 1 arguments! (view_eram <address> [length])");
         return;
@@ -299,9 +360,43 @@ static void cmd_view_eram(char* args[], int argc) {
     if (argc == 3)
         length = (uint32_t)strtoul(args[2], NULL, 0);
 
-
     for (int i = 0; i < length; i++) {
         uint8_t value = read_eram_flat(address + i);
+
+        char bin[9];
+        for (int i = 7; i >= 0; i--)
+            bin[7 - i] = ((value >> i) & 1) ? '1' : '0';
+        bin[8] = '\0';
+
+        char c = (value >= 32 && value <= 126) ? value : '.';
+        cli_hout("0x%08X", address + i);
+        printf("0x%02X %3d %s %c\n", value, value, bin, c);
+    }
+}
+
+// Views addresses in high ram
+static void cmd_view_hram(char* args[], int argc) {
+    if (argc < 2 || argc > 3)
+    {
+        cli_warn("Expected 1 arguments! (view_hram <address> [length])");
+        return;
+    }
+
+    // Get the arguments
+    uint8_t address = (uint8_t)strtoul(args[1], NULL, 0);
+
+    uint16_t length = 1;
+    if (argc == 3)
+        length = (uint16_t)strtoul(args[2], NULL, 0);
+
+    if (address + length > 256)
+    {
+        cli_warn("Out of range!");
+        return;
+    }
+
+    for (int i = 0; i < length; i++) {
+        uint8_t value = read_hram(address + i);
 
         char bin[9];
         for (int i = 7; i >= 0; i--)
@@ -341,9 +436,12 @@ static Command gCommandTable[] = {
     { "ping", "Prints pong to the log.", cmd_ping },
     { "pr_opcodes", "Prints all opcodes to the log.", cmd_pr_opcodes },
     { "rom_load", "Loads a file into rom. Usage: rom_load <path>.", cmd_rom_load },
-    { "view_rom", "Reads a value from rom at address range. Usage: rom_view <address> [length].", cmd_view_rom },
-    { "view_iram", "Reads a value from internal memory at address range. Usage: rom_view <address> [length].", cmd_view_iram },
-    { "view_eram", "Reads a value from external memory at address range. Usage: rom_view <address> [length].", cmd_view_eram },
+    { "view", "Reads a value from rom at address range. Usage: view <address> [length].", cmd_view },
+    { "view_regs", "Reads all registers.", cmd_view_regs },
+    { "view_rom", "Reads a value from rom at address range. Usage: view_rom <address> [length].", cmd_view_rom },
+    { "view_iram", "Reads a value from internal memory at address range. Usage: view_iram <address> [length].", cmd_view_iram },
+    { "view_eram", "Reads a value from external memory at address range. Usage: view_eram <address> [length].", cmd_view_eram },
+    { "view_hram", "Reads a value from external memory at address range. Usage: view_hram <address> [length].", cmd_view_hram },
     { "emu_start", "Starts the emulation.", cmd_emu_start },
 };
 

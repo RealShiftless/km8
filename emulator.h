@@ -4,7 +4,11 @@
 #define RAM_BANKS 4
 #define RAM_BANK_SIZE 0x4000
 
+#define HRAM_SIZE 256
+
 #define CYCLES_PER_FRAME 277777
+#define BIOS_SIZE 256
+
 
 typedef enum {
 	EMU_NONE       = 0b00000000,
@@ -56,13 +60,22 @@ uint8_t load_rom(const char* path);
 uint8_t read_rom(uint8_t bank, uint16_t address);
 uint8_t read_rom_flat(uint32_t globalAddress);
 
+uint8_t read_bios(uint8_t address);
+
 uint8_t read_iram(uint8_t bank, uint16_t address);
 uint8_t read_iram_flat(uint32_t globalAddress);
 
 void write_iram(uint8_t bank, uint16_t address, uint8_t value);
 void write_iram_flat(uint32_t globalAddress, uint8_t value);
 
+uint8_t read_eram(uint8_t bank, uint16_t address);
+uint8_t read_eram_flat(uint32_t globalAddress);
+
 void write_eram(uint8_t bank, uint16_t address, uint8_t value);
 void write_eram_flat(uint32_t globalAddress, uint8_t value);
+
+uint8_t read_hram(uint8_t address);
+void write_hram(uint8_t address, uint8_t value);
+
 
 #pragma once

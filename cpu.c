@@ -8,9 +8,9 @@ Operator gOpcodes[MAX_OPCODES];
 uint8_t gCpuCurrState = CPU_HALT;
 uint8_t gCpuPrevState = CPU_HALT;
 
-uint16_t gProgramCounter;
-uint16_t gStackPointer;
-uint8_t gRegisters[8];
+//uint16_t gProgramCounter;
+//uint16_t gStackPointer;
+uint8_t gRegisters[REGISTER_COUNT];
 
 uint8_t gCpuHaltCode;
 
@@ -45,58 +45,34 @@ void cpu_init() {
     set_opcode(OPCODE_STR_REG,  4, 0, "STR",  (Operand[]) { { OPERAND_REG }, { OPERAND_MEM } });
     set_opcode(OPCODE_STR_IMM,  4, 0, "STR",  (Operand[]) { { OPERAND_REG }, { OPERAND_IMM } });
     set_opcode(OPCODE_MOV,      3, 0, "MOV",  (Operand[]) { { OPERAND_REG }, { OPERAND_REG } });
-    set_opcode(OPCODE_SWAP,     3, 0, "SWP",  (Operand[]) { { OPERAND_REG }, { OPERAND_REG } });
+    set_opcode(OPCODE_SWP,     3, 0,  "SWP",  (Operand[]) { { OPERAND_REG }, { OPERAND_REG } });
     set_opcode(OPCODE_PUSH_REG, 2, 0, "PUSH", (Operand[]) { { OPERAND_REG }, { OPERAND_NIL } });
     set_opcode(OPCODE_PUSH_IMM, 2, 0, "PUSH", (Operand[]) { { OPERAND_IMM }, { OPERAND_NIL } });
     set_opcode(OPCODE_POP,      2, 0, "POP",  (Operand[]) { { OPERAND_REG }, { OPERAND_NIL } });
     set_opcode(OPCODE_CLR,      2, 0, "CLR",  (Operand[]) { { OPERAND_REG }, { OPERAND_NIL } });
 
     // Addition
-    set_opcode(OPCODE_ADDU_REG, 3, 0, "ADDU", (Operand[]) { { OPERAND_REG }, { OPERAND_REG } });
-    set_opcode(OPCODE_ADDU_IMM, 3, 0, "ADDU", (Operand[]) { { OPERAND_REG }, { OPERAND_IMM } });
-    set_opcode(OPCODE_ADDI_REG, 3, 0, "ADDI", (Operand[]) { { OPERAND_REG }, { OPERAND_REG } });
-    set_opcode(OPCODE_ADDI_IMM, 3, 0, "ADDI", (Operand[]) { { OPERAND_REG }, { OPERAND_IMM } });
+    set_opcode(OPCODE_ADD_REG, 3, 0, "ADD",   (Operand[]) { { OPERAND_REG }, { OPERAND_REG } });
+    set_opcode(OPCODE_ADD_IMM, 3, 0, "ADD",   (Operand[]) { { OPERAND_REG }, { OPERAND_IMM } });
 
-    set_opcode(OPCODE_ADCU_REG, 3, 0, "ADCU", (Operand[]) { { OPERAND_REG }, { OPERAND_REG } });
-    set_opcode(OPCODE_ADCU_IMM, 3, 0, "ADCU", (Operand[]) { { OPERAND_REG }, { OPERAND_IMM } });
-    set_opcode(OPCODE_ADCI_REG, 3, 0, "ADCI", (Operand[]) { { OPERAND_REG }, { OPERAND_REG } });
-    set_opcode(OPCODE_ADCI_IMM, 3, 0, "ADCI", (Operand[]) { { OPERAND_REG }, { OPERAND_IMM } });
+    set_opcode(OPCODE_ADC_REG, 3, 0, "ADC", (Operand[]) { { OPERAND_REG }, { OPERAND_REG } });
+    set_opcode(OPCODE_ADC_IMM, 3, 0, "ADC", (Operand[]) { { OPERAND_REG }, { OPERAND_IMM } });
 
     set_opcode(OPCODE_INC,      2, 0, "INC",  (Operand[]) { { OPERAND_REG }, { OPERAND_NIL } });
 
     // Subtraction
-    set_opcode(OPCODE_SUBU_REG, 3, 0, "SUBU", (Operand[]) { { OPERAND_REG }, { OPERAND_REG } });
-    set_opcode(OPCODE_SUBU_IMM, 3, 0, "SUBU", (Operand[]) { { OPERAND_REG }, { OPERAND_IMM } });
-    set_opcode(OPCODE_SUBI_REG, 3, 0, "SUBI", (Operand[]) { { OPERAND_REG }, { OPERAND_REG } });
-    set_opcode(OPCODE_SUBI_IMM, 3, 0, "SUBI", (Operand[]) { { OPERAND_REG }, { OPERAND_IMM } });
+    set_opcode(OPCODE_SUB_REG, 3, 0, "SUB", (Operand[]) { { OPERAND_REG }, { OPERAND_REG } });
+    set_opcode(OPCODE_SUB_IMM, 3, 0, "SUB", (Operand[]) { { OPERAND_REG }, { OPERAND_IMM } });
 
-    set_opcode(OPCODE_SUCU_REG, 3, 0, "SUCU", (Operand[]) { { OPERAND_REG }, { OPERAND_REG } });
-    set_opcode(OPCODE_SUCU_IMM, 3, 0, "SUCU", (Operand[]) { { OPERAND_REG }, { OPERAND_IMM } });
-    set_opcode(OPCODE_SUCI_REG, 3, 0, "SUCI", (Operand[]) { { OPERAND_REG }, { OPERAND_REG } });
-    set_opcode(OPCODE_SUCI_IMM, 3, 0, "SUCI", (Operand[]) { { OPERAND_REG }, { OPERAND_IMM } });
+    set_opcode(OPCODE_SBC_REG, 3, 0, "SBC", (Operand[]) { { OPERAND_REG }, { OPERAND_REG } });
+    set_opcode(OPCODE_SBC_IMM, 3, 0, "SBC", (Operand[]) { { OPERAND_REG }, { OPERAND_IMM } });
 
     set_opcode(OPCODE_DEC,      2, 0, "DEC",  (Operand[]) { { OPERAND_REG }, { OPERAND_NIL } });
 
-    // Multiplication
-    set_opcode(OPCODE_MULU_REG, 3, 0, "MULU", (Operand[]) { { OPERAND_REG }, { OPERAND_REG } });
-    set_opcode(OPCODE_MULU_IMM, 3, 0, "MULU", (Operand[]) { { OPERAND_REG }, { OPERAND_IMM } });
-    set_opcode(OPCODE_MULI_REG, 3, 0, "MULI", (Operand[]) { { OPERAND_REG }, { OPERAND_REG } });
-    set_opcode(OPCODE_MULI_IMM, 3, 0, "MULI", (Operand[]) { { OPERAND_REG }, { OPERAND_IMM } });
-
-    // Division
-    set_opcode(OPCODE_DIVU_REG, 3, 0, "DIVU", (Operand[]) { { OPERAND_REG }, { OPERAND_REG } });
-    set_opcode(OPCODE_DIVU_IMM, 3, 0, "DIVU", (Operand[]) { { OPERAND_REG }, { OPERAND_IMM } });
-    set_opcode(OPCODE_DIVI_REG, 3, 0, "DIVI", (Operand[]) { { OPERAND_REG }, { OPERAND_REG } });
-    set_opcode(OPCODE_DIVI_IMM, 3, 0, "DIVI", (Operand[]) { { OPERAND_REG }, { OPERAND_IMM } });
-
-    // Modulo
-    set_opcode(OPCODE_MODU_REG, 3, 0, "MODU", (Operand[]) { { OPERAND_REG }, { OPERAND_REG } });
-    set_opcode(OPCODE_MODU_IMM, 3, 0, "MODU", (Operand[]) { { OPERAND_REG }, { OPERAND_IMM } });
-    set_opcode(OPCODE_MODI_REG, 3, 0, "MODI", (Operand[]) { { OPERAND_REG }, { OPERAND_REG } });
-    set_opcode(OPCODE_MODI_IMM, 3, 0, "MODI", (Operand[]) { { OPERAND_REG }, { OPERAND_IMM } });
-
-    // Extra math
-    set_opcode(OPCODE_NEG,      2, 0, "NEG",  (Operand[]) { { OPERAND_REG }, { OPERAND_NIL } });
+    set_opcode(OPCODE_CMP_REG, 3, 0, "CMPU", (Operand[]) { { OPERAND_REG }, { OPERAND_REG } });
+    set_opcode(OPCODE_CMP_IMM, 3, 0, "CMPU", (Operand[]) { { OPERAND_REG }, { OPERAND_IMM } });
+    set_opcode(OPCODE_CMPS_REG, 3, 0, "CMPI", (Operand[]) { { OPERAND_REG }, { OPERAND_REG } });
+    set_opcode(OPCODE_CMPS_IMM, 3, 0, "CMPI", (Operand[]) { { OPERAND_REG }, { OPERAND_IMM } });
 
     // Bitwise
     set_opcode(OPCODE_AND_REG,  3, 0, "AND",  (Operand[]) { { OPERAND_REG }, { OPERAND_REG } });
@@ -114,13 +90,6 @@ void cpu_init() {
     set_opcode(OPCODE_SHR,      2, 0, "SHR",  (Operand[]) { { OPERAND_REG }, { OPERAND_NIL } });
     set_opcode(OPCODE_ROL,      2, 0, "ROL",  (Operand[]) { { OPERAND_REG }, { OPERAND_NIL } });
     set_opcode(OPCODE_ROR,      2, 0, "ROR",  (Operand[]) { { OPERAND_REG }, { OPERAND_NIL } });
-
-
-    // Comparisons
-    set_opcode(OPCODE_CMPU_REG, 3, 0, "CMPU", (Operand[]) { { OPERAND_REG }, { OPERAND_REG } });
-    set_opcode(OPCODE_CMPU_IMM, 3, 0, "CMPU", (Operand[]) { { OPERAND_REG }, { OPERAND_IMM } });
-    set_opcode(OPCODE_CMPI_REG, 3, 0, "CMPI", (Operand[]) { { OPERAND_REG }, { OPERAND_REG } });
-    set_opcode(OPCODE_CMPI_IMM, 3, 0, "CMPI", (Operand[]) { { OPERAND_REG }, { OPERAND_IMM } });
 
     set_opcode(OPCODE_TST_REG,  3, 0, "TST",  (Operand[]) { { OPERAND_REG }, { OPERAND_REG } });
     set_opcode(OPCODE_TST_IMM,  3, 0, "TST",  (Operand[]) { { OPERAND_REG }, { OPERAND_IMM } });
@@ -157,14 +126,96 @@ void cpu_init() {
     set_opcode(OPCODE_VBLK,     1, 0, "VBLK", (Operand[]) { { OPERAND_NIL }, { OPERAND_NIL } });
 }
 
+// Math Operations, easier to do here for different versions and flags and stuff
+static inline uint8_t op_add(uint8_t a, uint8_t b) {
+    uint16_t result = a + b;
+
+    // Carry if result overflowed 8 bits
+    if (result > 0xFF) gFlags |= FLAG_C;
+
+    // Zero if result is 0
+    if ((uint8_t)result == 0) gFlags |= FLAG_Z;
+
+    // Negative if bit 7 set
+    if (result & 0x80) gFlags |= FLAG_N;
+
+    // Overflow if signs of inputs are same and sign of result differs
+    if (((a ^ b) & 0x80) == 0 && ((a ^ result) & 0x80) != 0) gFlags |= FLAG_V;
+
+    return (uint8_t)result;
+}
+
+static inline uint8_t op_adc(uint8_t a, uint8_t b) {
+    // Get carry flag if set
+    uint8_t carry_in = (gFlags & FLAG_C) ? 1 : 0;
+
+    // Full 9-bit result for overflow/carry checking
+    uint16_t result = a + b + carry_in;
+
+    // Clear old flags before setting new ones
+    gFlags = 0;
+
+    // Carry out of bit 7 (unsigned overflow)
+    if (result > 0xFF) gFlags |= FLAG_C;
+
+    // Zero result
+    if ((uint8_t)result == 0) gFlags |= FLAG_Z;
+
+    // Negative flag (sign bit)
+    if (result & 0x80) gFlags |= FLAG_N;
+
+    // Overflow (signed overflow detection)
+    if (((a ^ b) & 0x80) == 0 && ((a ^ result) & 0x80) != 0) gFlags |= FLAG_V;
+
+    return (uint8_t)result;
+}
+
+static inline uint8_t op_sub(uint8_t a, uint8_t b) {
+    uint16_t result = a - b;
+
+    // Carry if borrow
+    if (a < b) gFlags |= FLAG_C;
+
+    // Zero if 0
+    if ((uint8_t)result == 0) gFlags |= FLAG_Z;
+
+    // Negative if bit 7
+    if (result & 0x80) gFlags |= FLAG_N;
+
+    // Overflow if signs of inputs are same and sign of result differs
+    if (((a ^ b) & 0x80) != 0 && ((a ^ result) & 0x80) != 0) gFlags |= FLAG_V;
+
+    return (uint8_t)result;
+}
+
+static inline uint8_t op_sbc(uint8_t a, uint8_t b) {
+    uint8_t borrow = (gFlags & FLAG_C) ? 1 : 0;
+    uint16_t result = a - b - borrow;
+
+    gFlags = 0;
+
+    // Set Carry if borrow occurred (unsigned underflow)
+    if (a < (uint16_t)b + borrow) gFlags |= FLAG_C;
+
+    // Set Zero if result is zero
+    if ((uint8_t)result == 0) gFlags |= FLAG_Z;
+
+    // Set Negative if sign bit is set
+    if (result & 0x80) gFlags |= FLAG_N;
+
+    // Set Overflow if signs differ and result sign is unexpected
+    if (((a ^ b) & 0x80) != 0 && ((a ^ result) & 0x80) != 0) gFlags |= FLAG_V;
+
+    return (uint8_t)result;
+}
+
 // Cpu Execution Func
 static inline uint8_t execute_opcode(uint8_t cycle) {
     BusAccessResult busResult = BUS_OK;
-    uint8_t opcodeResult = EXECUTION_FAILED;
+    uint8_t opcodeResult = EXECUTION_SUCCES;
 
     switch (gExecContext.cur_opcode) {
     case OPCODE_NOP:
-        opcodeResult = EXECUTION_SUCCES;
         break;
 
     case OPCODE_LDR_MEM:
@@ -175,31 +226,323 @@ static inline uint8_t execute_opcode(uint8_t cycle) {
         }
         else if (cycle == 1) {
             gRegisters[gExecContext.operand_buffer[0]] = gDataBuffer;
-            opcodeResult = EXECUTION_SUCCES;
         }
         break;
 
     case OPCODE_LDR_IMM:
         gRegisters[gExecContext.operand_buffer[0]] = gExecContext.operand_buffer[1];
-        opcodeResult = EXECUTION_SUCCES;
         break;
 
     case OPCODE_STR_REG: {
         uint16_t addr = gExecContext.operand_buffer[1] | (gExecContext.operand_buffer[2] << 8);
-        uint8_t value = gRegisters[gExecContext.operand_buffer[0]];
-        busResult = bus_write(addr, value, &gLatencyCycles);
-        opcodeResult = EXECUTION_SUCCES;
+        uint8_t reg = gExecContext.operand_buffer[0];
+
+        if (reg >= REGISTER_COUNT)
+        {
+            gCpuHaltCode = HALTCODE_INVALID_OPERAND;
+            opcodeResult = EXECUTION_FAILED;
+            break;
+        }
+
+        busResult = bus_write(addr, gRegisters[reg], &gLatencyCycles);
+        break;
+    }
+
+    case OPCODE_MOV: {
+        uint8_t reg0 = gExecContext.operand_buffer[0];
+        uint8_t reg1 = gExecContext.operand_buffer[1];
+
+        if (reg0 >= REGISTER_COUNT || reg1 >= REGISTER_COUNT) {
+            gCpuHaltCode = HALTCODE_INVALID_OPERAND;
+            opcodeResult = EXECUTION_FAILED;
+            break;
+        }
+
+        gRegisters[reg0] = gRegisters[reg1];
+        break;
+    }
+
+    case OPCODE_SWP: {
+        uint8_t reg0 = gExecContext.operand_buffer[0];
+        uint8_t reg1 = gExecContext.operand_buffer[1];
+
+        if (reg0 >= REGISTER_COUNT || reg1 >= REGISTER_COUNT) {
+            gCpuHaltCode = HALTCODE_INVALID_OPERAND;
+            opcodeResult = EXECUTION_FAILED;
+            break;
+        }
+
+        uint8_t temp = gRegisters[reg0];
+        gRegisters[reg0] = gRegisters[reg1];
+        gRegisters[reg1] = temp;
+        break;
+    }
+
+    case OPCODE_PUSH_REG: {
+        uint8_t reg = gExecContext.operand_buffer[0];
+
+        if (reg >= REGISTER_COUNT)
+        {
+            gCpuHaltCode = HALTCODE_INVALID_OPERAND;
+            opcodeResult = EXECUTION_FAILED;
+            break;
+        }
+
+        busResult = bus_write(gStackPointer--, gRegisters[reg], &gLatencyCycles);
+        break;
+    }
+
+    case OPCODE_PUSH_IMM: {
+        busResult = bus_write(gStackPointer--, gExecContext.operand_buffer[0], &gLatencyCycles);
+        break;
+    }
+
+    case OPCODE_POP: {
+        uint8_t reg = gExecContext.operand_buffer[0];
+
+        if (reg >= REGISTER_COUNT)
+        {
+            gCpuHaltCode = HALTCODE_INVALID_OPERAND;
+            opcodeResult = EXECUTION_FAILED;
+            break;
+        }
+
+        busResult = bus_read(gStackPointer++, &gRegisters[reg], &gLatencyCycles);
+        break;
+    }
+
+    case OPCODE_CLR: {
+        uint8_t reg = gExecContext.operand_buffer[0];
+
+        if (reg >= REGISTER_COUNT)
+        {
+            gCpuHaltCode = HALTCODE_INVALID_OPERAND;
+            opcodeResult = EXECUTION_FAILED;
+            break;
+        }
+
+        gRegisters[reg] = 0;
+        break;
+    }
+
+    case OPCODE_ADD_REG: {
+        uint8_t reg0 = gExecContext.operand_buffer[0];
+        uint8_t reg1 = gExecContext.operand_buffer[1];
+
+        if (reg0 >= REGISTER_COUNT || reg1 >= REGISTER_COUNT) {
+            gCpuHaltCode = HALTCODE_INVALID_OPERAND;
+            opcodeResult = EXECUTION_FAILED;
+            break;
+        }
+
+        // actually set the result
+        gRegisters[reg0] = op_add(gRegisters[reg0], gRegisters[reg1]);
+        break;
+    }
+
+    case OPCODE_ADD_IMM: {
+        uint8_t reg = gExecContext.operand_buffer[0];
+        uint8_t imm = gExecContext.operand_buffer[1];
+
+        if (reg >= REGISTER_COUNT) {
+            gCpuHaltCode = HALTCODE_INVALID_OPERAND;
+            opcodeResult = EXECUTION_FAILED;
+            break;
+        }
+
+        gRegisters[reg] = op_add(gRegisters[reg], imm);
+        break;
+    }
+
+    case OPCODE_ADC_REG: {
+        uint8_t reg0 = gExecContext.operand_buffer[0];
+        uint8_t reg1 = gExecContext.operand_buffer[1];
+
+        if (reg0 >= REGISTER_COUNT || reg1 >= REGISTER_COUNT) {
+            gCpuHaltCode = HALTCODE_INVALID_OPERAND;
+            opcodeResult = EXECUTION_FAILED;
+            break;
+        }
+
+        gRegisters[reg0] = op_adc(gRegisters[reg0], gRegisters[reg1]);
+        break;
+    }
+
+    case OPCODE_ADC_IMM: {
+        uint8_t reg = gExecContext.operand_buffer[0];
+        uint8_t imm = gExecContext.operand_buffer[1];
+
+        if (reg >= REGISTER_COUNT) {
+            gCpuHaltCode = HALTCODE_INVALID_OPERAND;
+            opcodeResult = EXECUTION_FAILED;
+            break;
+        }
+
+        gRegisters[reg] = op_adc(gRegisters[reg], imm);
+        break;
+    }
+
+    case OPCODE_INC: {
+        uint8_t reg = gExecContext.operand_buffer[0];
+
+        if (reg >= REGISTER_COUNT) {
+            gCpuHaltCode = HALTCODE_INVALID_OPERAND;
+            opcodeResult = EXECUTION_FAILED;
+            break;
+        }
+
+        gRegisters[reg] = op_add(gRegisters[reg], 1);
+        break;
+    }
+
+    case OPCODE_SUB_REG: {
+        uint8_t reg0 = gExecContext.operand_buffer[0];
+        uint8_t reg1 = gExecContext.operand_buffer[1];
+
+        if (reg0 >= REGISTER_COUNT || reg1 >= REGISTER_COUNT) {
+            gCpuHaltCode = HALTCODE_INVALID_OPERAND;
+            opcodeResult = EXECUTION_FAILED;
+            break;
+        }
+
+        gRegisters[reg0] = op_sub(gRegisters[reg0], gRegisters[reg1]);
+        break;
+    }
+
+    case OPCODE_SUB_IMM: {
+        uint8_t reg = gExecContext.operand_buffer[0];
+        uint8_t imm = gExecContext.operand_buffer[1];
+
+        if (reg >= REGISTER_COUNT) {
+            gCpuHaltCode = HALTCODE_INVALID_OPERAND;
+            opcodeResult = EXECUTION_FAILED;
+            break;
+        }
+
+        gRegisters[reg] = op_sub(gRegisters[reg], imm);
+        break;
+    }
+
+    case OPCODE_SBC_REG: {
+        uint8_t reg0 = gExecContext.operand_buffer[0];
+        uint8_t reg1 = gExecContext.operand_buffer[1];
+
+        if (reg0 >= REGISTER_COUNT || reg1 >= REGISTER_COUNT) {
+            gCpuHaltCode = HALTCODE_INVALID_OPERAND;
+            opcodeResult = EXECUTION_FAILED;
+            break;
+        }
+
+        gRegisters[reg0] = op_sbc(gRegisters[reg0], gRegisters[reg1]);
+        break;
+    }
+
+    case OPCODE_SBC_IMM: {
+        uint8_t reg = gExecContext.operand_buffer[0];
+        uint8_t imm = gExecContext.operand_buffer[1];
+
+        if (reg >= REGISTER_COUNT) {
+            gCpuHaltCode = HALTCODE_INVALID_OPERAND;
+            opcodeResult = EXECUTION_FAILED;
+            break;
+        }
+
+        gRegisters[reg] = op_sbc(gRegisters[reg], imm);
+        break;
+    }
+
+    case OPCODE_DEC: {
+        uint8_t reg = gExecContext.operand_buffer[0];
+
+        if (reg >= REGISTER_COUNT) {
+            gCpuHaltCode = HALTCODE_INVALID_OPERAND;
+            opcodeResult = EXECUTION_FAILED;
+            break;
+        }
+
+        gRegisters[reg] = op_sub(gRegisters[reg], 1);
+        break;
+    }
+
+    case OPCODE_CMP_REG: {
+        uint8_t reg0 = gExecContext.operand_buffer[0];
+        uint8_t reg1 = gExecContext.operand_buffer[1];
+
+        if (reg0 >= REGISTER_COUNT || reg1 >= REGISTER_COUNT) {
+            gCpuHaltCode = HALTCODE_INVALID_OPERAND;
+            opcodeResult = EXECUTION_FAILED;
+            break;
+        }
+
+        op_sub(gRegisters[reg0], gRegisters[reg1]);
+        break;
+    }
+
+    case OPCODE_CMP_IMM: {
+        uint8_t reg = gExecContext.operand_buffer[0];
+        uint8_t imm = gExecContext.operand_buffer[1];
+
+        if (reg >= REGISTER_COUNT) {
+            gCpuHaltCode = HALTCODE_INVALID_OPERAND;
+            opcodeResult = EXECUTION_FAILED;
+            break;
+        }
+
+        op_sub(gRegisters[reg], imm);
+        break;
+    }
+
+    case OPCODE_CMPS_REG: {
+        uint8_t reg0 = gExecContext.operand_buffer[0];
+        uint8_t reg1 = gExecContext.operand_buffer[1];
+
+        if (reg0 >= REGISTER_COUNT || reg1 >= REGISTER_COUNT) {
+            gCpuHaltCode = HALTCODE_INVALID_OPERAND;
+            opcodeResult = EXECUTION_FAILED;
+            break;
+        }
+
+        op_sub(gRegisters[reg0], gRegisters[reg1]);
+        break;
+    }
+
+    case OPCODE_CMPS_IMM: {
+        uint8_t reg = gExecContext.operand_buffer[0];
+        uint8_t imm = gExecContext.operand_buffer[1];
+
+        if (reg >= REGISTER_COUNT) {
+            gCpuHaltCode = HALTCODE_INVALID_OPERAND;
+            opcodeResult = EXECUTION_FAILED;
+            break;
+        }
+
+        op_sub(gRegisters[reg], imm);
+        break;
+    }
+    
+    case OPCODE_JMP_MEM: {
+        gProgramCounter = *(uint16_t*)&gExecContext.operand_buffer[0];
+
+        uint16_t val = gProgramCounter;
+        break;
+    }
+
+    case OPCODE_JMP_REG: {
+        uint8_t reg = gExecContext.operand_buffer[0];
+
+        if (reg >= REGISTER_COUNT - 1) {
+            gCpuHaltCode = HALTCODE_INVALID_OPERAND;
+            opcodeResult = EXECUTION_FAILED;
+            break;
+        }
+
+        gProgramCounter = *(uint16_t*)&gRegisters[reg];
         break;
     }
 
     case OPCODE_HLT:
         gCpuHaltCode = HALTCODE_MANUAL;
         return EXECUTION_HALT;
-
-    case OPCODE_JMP_MEM:
-        gProgramCounter = gExecContext.operand_buffer[1] | (gExecContext.operand_buffer[0] << 8);
-        opcodeResult = EXECUTION_SUCCES;
-        break;
     
     default:
         gCpuHaltCode = HALTCODE_INVALID_OPCODE;
@@ -209,7 +552,7 @@ static inline uint8_t execute_opcode(uint8_t cycle) {
     // Centralized error handling
     if (busResult != BUS_OK) {
         gCpuHaltCode =
-            (busResult == BUS_HALT_READONLY) ? HALTCODE_READ_PROTECTED :
+            (busResult == BUS_HALT_READONLY) ? HALTCODE_WRITE_PROTECTED :
             (busResult == BUS_HALT_UNUSED) ? HALTCODE_BUS_FAULT :
             (busResult == BUS_HALT_INVALID) ? HALTCODE_BUS_FAULT :
             HALTCODE_UNKNOWN;
@@ -280,6 +623,7 @@ void cpu_run_cycle() {
                     break;
             }
             break;
+
 
         case CPU_WRITEBACK:
 

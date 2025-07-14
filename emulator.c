@@ -15,7 +15,22 @@ uint64_t gTotalCycles;
 uint64_t gCurCycle; 
 
 // Memory
+static uint8_t gBios[BIOS_SIZE] = {
+    0x02, 0x04, 0xFF, 0x02, 0x05, 0xF2, 0x40, 0x10, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+
 static uint8_t gRam[RAM_BANKS][RAM_BANK_SIZE];
+static uint8_t gHRam[HRAM_SIZE];
 
 // Timing
 static uint32_t gFrameCycles;
@@ -25,15 +40,16 @@ void get_haltcode_string(uint8_t haltcode, char* haltcodeString, size_t bufferSi
     const char* str;
 
     switch (haltcode) {
-    case HALTCODE_MANUAL:            str = "Manual"; break;
-    case HALTCODE_INVALID_OPCODE:    str = "Invalid Opcode"; break;
-    case HALTCODE_TRAP:              str = "Trap"; break;
-    case HALTCODE_STACK_OVERFLOW:    str = "Stack Overflow"; break;
-    case HALTCODE_BUS_FAULT:         str = "Bus Fault"; break;
-    case HALTCODE_UNKNOWN:           str = "Unknown"; break;
-    case HALTCODE_WRITE_PROTECTED:   str = "Write Protected"; break;
-    case HALTCODE_READ_PROTECTED:    str = "Read Protected"; break;
-    default:                         str = "???"; break;
+        case HALTCODE_MANUAL:            str = "Manual"; break;
+        case HALTCODE_INVALID_OPCODE:    str = "Invalid Opcode"; break;
+        case HALTCODE_INVALID_OPERAND:   str = "Invalid Operand"; break;
+        case HALTCODE_TRAP:              str = "Trap"; break;
+        case HALTCODE_STACK_OVERFLOW:    str = "Stack Overflow"; break;
+        case HALTCODE_BUS_FAULT:         str = "Bus Fault"; break;
+        case HALTCODE_UNKNOWN:           str = "Unknown"; break;
+        case HALTCODE_WRITE_PROTECTED:   str = "Write Protected"; break;
+        case HALTCODE_READ_PROTECTED:    str = "Read Protected"; break;
+        default:                         str = "???"; break;
     }
 
     snprintf(haltcodeString, bufferSize, "%s", str);
@@ -45,8 +61,7 @@ void emu_init() {
     gCurCycle = 0;
     gFrameCycles = 0;
 
-    // Also set the PC in the CPU
-    gProgramCounter = 0x10;
+    gProgramCounter = 0;
 }
 
 void exec_idle() {
@@ -91,12 +106,14 @@ void emu_stop() {
 
 void emu_halt() {
     emu_stop();
-    cli_runtime_out("Halted");
 
     if (gCpuHaltCode != HALTCODE_MANUAL) {
         char haltcodeBuffer[16];
         get_haltcode_string(gCpuHaltCode, &haltcodeBuffer, 16);
-        cli_runtime_err_out(haltcodeBuffer);
+        cli_runtime_err_out("Halted (HC: %s, PC: %04X)", haltcodeBuffer, gProgramCounter);
+    }
+    else {
+        cli_runtime_out("Halted (HC: Manual, PC: %04X)", gProgramCounter);
     }
 }
 
@@ -212,6 +229,11 @@ uint8_t load_rom(const char* path) {
     return LOAD_SUCCESS;
 }
 
+// Read Bios
+uint8_t read_bios(uint8_t address) {
+    return gBios[address];
+}
+
 // Read rom
 uint8_t read_rom(uint8_t bank, uint16_t address) {
     return gCartridge.rom[bank][address];
@@ -247,9 +269,15 @@ void write_iram_flat(uint32_t globalAddress, uint8_t value) {
 
 // Read external ram
 uint8_t read_eram(uint8_t bank, uint16_t address) {
+    if (gCartridge.ram == NULL || gCartridge.header.ram_size == 0)
+        return 0xFF;
+
     return gCartridge.ram[bank][address];
 }
 uint8_t read_eram_flat(uint32_t globalAddress) {
+    if (gCartridge.ram == NULL || gCartridge.header.ram_size == 0)
+        return 0xFF;
+
     uint8_t bank = (uint8_t)(globalAddress / CART_RAM_BANK_S);
     uint16_t address = (uint16_t)(globalAddress % CART_RAM_BANK_S);
 
@@ -267,3 +295,11 @@ void write_eram_flat(uint32_t globalAddress, uint8_t value) {
     write_eram(bank, address, value);
 }
 
+
+// Hram
+uint8_t read_hram(uint8_t address) {
+    return gHRam[address];
+}
+void write_hram(uint8_t address, uint8_t value) {
+    gHRam[address] = value;
+}
