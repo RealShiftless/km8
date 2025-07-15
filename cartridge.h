@@ -1,3 +1,5 @@
+#pragma once
+
 #include <stdint.h>
 
 #define CART_ROM_BANK_S 0x4000
@@ -27,5 +29,3 @@ typedef struct {
 	uint8_t** rom;
 	uint8_t** ram;
 } Cartridge;
-
-#pragma once

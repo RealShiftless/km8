@@ -1,4 +1,6 @@
 #include "bus.h"
+#include "cpu.h"
+#include "opcodes.h"
 
 static AddressRange gAddressTable[BUS_MAX] = {
 	//                      Base      End        Latency  Flags

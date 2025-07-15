@@ -2,6 +2,7 @@
 #include "cpu.h"
 #include "emulator.h"
 #include "bus.h"
+#include "opcodes.h"
 
 // Values
 char gCliInputBuffer[CLI_INPUT_BUFFER_S];
@@ -235,10 +236,14 @@ static void cmd_view_regs(char* args[], int argc) {
     }
 
     cli_hout("sp");
-    printf("0x%04X\n", gStackPointer);
+    printf("0x%02X%02X\n", 
+        gRegisters[SP_INDEX + 0], 
+        gRegisters[SP_INDEX + 1]);
 
     cli_hout("pc");
-    printf("0x%04X\n", gProgramCounter);
+    printf("0x%02X%02X\n",
+        gRegisters[PC_INDEX + 0],
+        gRegisters[PC_INDEX + 1]);
 }
 
 // Views in address space
@@ -425,9 +430,9 @@ static void cmd_emu_start(char* args[], int argc) {
     
     cli_lout("Starting emulation...");
 
-    emu_init();
+    init_emulation();
     gExecutionMode = EXEC_NORMAL;
-    gCpuCurrState = CPU_FETCH_OPCODE;
+    gCpuState = CPU_FETCH_OPCODE;
 }
 
 static Command gCommandTable[] = {

@@ -1,19 +1,23 @@
+#pragma once
+
 #include <stdint.h>
 #include <time.h>
 #include <stdio.h>
+#include <string.h>
+
+#include "bus.h"
 
 #define REGISTER_COUNT 12
 
-#define gStackPointer (*(uint16_t*)&gRegisters[REGISTER_COUNT - 5])
-#define gProgramCounter (*(uint16_t*)&gRegisters[REGISTER_COUNT - 3])
-#define gFlags (*(uint8_t*)&gRegisters[REGISTER_COUNT - 1])
+//#define gStackPointer (*(uint16_t*)&gRegisters[REGISTER_COUNT - 5])
+//#define gProgramCounter (*(uint16_t*)&gRegisters[REGISTER_COUNT - 3])
+//#define gFlags (*(uint8_t*)&gRegisters[REGISTER_COUNT - 1])
 
-#define MAX_OPCODES 256
-#define MAX_MNEMONIC 4
-#define MAX_OPERANDS 2
-#define MAX_OPERAND_SIZE 2
-#define OPERAND_BUFFER_SIZE (MAX_OPERANDS * MAX_OPERAND_SIZE)
+#define SP_INDEX (REGISTER_COUNT - 5)
+#define PC_INDEX (REGISTER_COUNT - 3)
+#define FLAGS_INDEX (REGISTER_COUNT - 1)
 
+// Enums
 typedef enum {
 	FLAG_C = 1 << 0,
 	FLAG_Z = 1 << 1,
@@ -31,6 +35,7 @@ typedef enum {
 } CpuState;
 
 typedef enum {
+	HALTCODE_NONE,
 	HALTCODE_MANUAL,
 	HALTCODE_INVALID_OPCODE,
 	HALTCODE_INVALID_OPERAND,
@@ -42,144 +47,96 @@ typedef enum {
 	HALTCODE_READ_PROTECTED
 };
 
-typedef enum {
-	OPCODE_NOP = 0x00,
-	OPCODE_LDR_MEM,
-	OPCODE_LDR_IMM,
-	OPCODE_STR_REG,
-	OPCODE_STR_IMM,
-	OPCODE_MOV,
-	OPCODE_SWP,
-	OPCODE_PUSH_REG,
-	OPCODE_PUSH_IMM,
-	OPCODE_POP,
-	OPCODE_CLR,
 
-	OPCODE_ADD_REG = 0x10,
-	OPCODE_ADD_IMM,
-
-	OPCODE_ADC_REG,
-	OPCODE_ADC_IMM,
-
-	OPCODE_INC,
-
-	OPCODE_SUB_REG,
-	OPCODE_SUB_IMM,
-
-	OPCODE_SBC_REG,
-	OPCODE_SBC_IMM,
-
-	OPCODE_DEC,
-
-	OPCODE_CMP_REG,
-	OPCODE_CMP_IMM,
-
-	OPCODE_AND_REG = 0x30,
-	OPCODE_AND_IMM,
-	OPCODE_OR_REG,
-	OPCODE_OR_IMM,
-	OPCODE_XOR_REG,
-	OPCODE_XOR_IMM,
-	OPCODE_NOT,
-	OPCODE_SHL,
-	OPCODE_SHR,
-	OPCODE_ROL,
-	OPCODE_ROR,
-
-	OPCODE_TST_REG,
-	OPCODE_TST_IMM,
-
-	OPCODE_JMP_MEM = 0x40,
-	OPCODE_JMP_REG,
-	OPCODE_JZ_MEM,
-	OPCODE_JZ_REG,
-	OPCODE_JNZ_MEM,
-	OPCODE_JNZ_REG,
-	OPCODE_JC_MEM,
-	OPCODE_JC_REG,
-	OPCODE_JNC_MEM,
-	OPCODE_JNC_REG,
-	OPCODE_JN_MEM,
-	OPCODE_JN_REG,
-	OPCODE_JNN_MEM,
-	OPCODE_JNN_REG,
-	OPCODE_JV_MEM,
-	OPCODE_JV_REG,
-	OPCODE_JNV_MEM,
-	OPCODE_JNV_REG,
-	OPCODE_JL_MEM,
-	OPCODE_JL_REG,
-	OPCODE_JG_MEM,
-	OPCODE_JG_REG,
-	
-	OPCODE_CALL_MEM,
-	OPCODE_CALL_REG,
-	OPCODE_RET,
-	OPCODE_HLT,
-
-	OPCODE_VBLK = 0xFF
-
-} Opcodes;
-
-typedef enum {
-	OPERAND_NIL = 0,
-	OPERAND_IMM,
-	OPERAND_REG,
-	OPERAND_MEM
-};
-
-typedef enum {
-	EXECUTION_PENDING,
-	EXECUTION_SUCCES,
-	EXECUTION_FAILED,
-	EXECUTION_HALT
-};
-
-typedef struct {
-	uint8_t cur_opcode;
-	uint16_t opcode_pc;
-	uint64_t opcode_cycle;
-	uint8_t opcode_size;
-
-	uint8_t operandA_type;
-	uint8_t operandB_type;
-
-	uint8_t operand_buffer[OPERAND_BUFFER_SIZE];
-
-	uint16_t result;
-} CpuExecutionContext;
-
-typedef struct {
-	uint8_t type;
-} Operand;
-
-typedef struct {
-	uint8_t size;
-	uint8_t cycles;
-
-	char mnemonic[MAX_MNEMONIC];
-	Operand operands[MAX_OPERANDS];
-} Operator;
-
-extern uint8_t gCpuCurrState;
-extern uint8_t gCpuPrevState;
-
+// CPU State
+extern uint8_t gCpuState;
 extern uint8_t gCpuHaltCode;
 
-//extern uint16_t gProgramCounter;
-//extern uint16_t gStackPointer;
+
+// Registers
 extern uint8_t gRegisters[REGISTER_COUNT];
 
-extern Operator gOpcodes[256];
 
-void cpu_init(void);
+// Func
+void init_cpu(void);
 void cpu_run_cycle(void);
 
-static inline uint8_t IsFlagSet(uint8_t v, uint8_t f) {
-	return (v & f) == f;
-}
-static inline uint8_t SetFlag(uint8_t v, uint8_t f) {
-	return v | f;
+
+// Register helpers
+static inline uint16_t get_sp() {
+	return gRegisters[SP_INDEX + 0] | (gRegisters[SP_INDEX + 1] << 8);
 }
 
-#pragma once
+static inline void set_sp(uint16_t value) {
+	gRegisters[SP_INDEX + 0] = value & 0xFF;
+	gRegisters[SP_INDEX + 1] = value >> 8;
+}
+
+static inline void dec_sp() {
+	set_sp(get_sp() - 1);
+}
+
+static inline void inc_sp() {
+	set_sp(get_sp() + 1);
+}
+
+static inline uint16_t get_pc() {
+	return gRegisters[PC_INDEX + 0] | (gRegisters[PC_INDEX + 1] << 8);
+}
+static inline void set_pc(uint16_t value) {
+	gRegisters[PC_INDEX + 0] = value & 0xFF;
+	gRegisters[PC_INDEX + 1] = value >> 8;
+}
+static inline void inc_pc() {
+	set_pc(get_pc() + 1);
+}
+
+static inline uint8_t get_flags(void) {
+	return gRegisters[FLAGS_INDEX];
+}
+static inline void clear_flags(void) {
+	gRegisters[FLAGS_INDEX] = 0;
+}
+static inline void set_flag(uint8_t flag) {
+	gRegisters[FLAGS_INDEX] |= flag;
+}
+static inline uint8_t is_flag_set(uint8_t flag) {
+	return gRegisters[FLAGS_INDEX] & flag;
+}
+
+// Bussin helpers
+static inline void set_bus_fault_halt(uint8_t result) {
+	gCpuHaltCode =
+		(result == BUS_HALT_READONLY) ? HALTCODE_WRITE_PROTECTED :
+		(result == BUS_HALT_UNUSED) ? HALTCODE_BUS_FAULT :
+		(result == BUS_HALT_INVALID) ? HALTCODE_BUS_FAULT :
+		HALTCODE_UNKNOWN;
+
+	gCpuState = CPU_HALT;
+}
+
+static inline uint8_t handle_bus_read(uint16_t address, uint8_t* value, uint8_t* latencyCycles) {
+	uint8_t busResult = bus_read(address, value, latencyCycles);
+
+	if (busResult != BUS_OK)
+	{
+		set_bus_fault_halt(busResult);
+		return 1;
+	}
+
+	return 0;
+}
+
+
+static inline uint8_t handle_bus_write(uint16_t address, uint8_t value, uint8_t* latencyCycles) {
+	uint8_t busResult = bus_write(address, value, latencyCycles);
+
+	if (busResult != BUS_OK)
+	{
+		set_bus_fault_halt(busResult);
+		return 1;
+	}
+
+	return 0;
+}
+

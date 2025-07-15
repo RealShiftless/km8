@@ -7,8 +7,9 @@
 uint64_t last_time = 0;
 
 void init() {
-    cpu_init();
-    emu_init();
+    init_opcodes();
+    init_cpu();
+    init_emulation();
     last_time = now_nanos();
 
     /*
@@ -17,7 +18,7 @@ void init() {
 
 
     load_rom("nop.bin");
-    gCpuCurrState = CPU_FETCH_OPCODE;
+    gCpuState = CPU_FETCH_OPCODE;
     gProgramCounter = 0x0010;
 
     QueryPerformanceCounter(&start);

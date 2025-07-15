@@ -1,6 +1,7 @@
+#pragma once
+
 #include <stdint.h>
 #include "emulator.h"
-#include "cpu.h"
 #include "cartridge.h"
 
 #define IRAM_RANGE_MASK (RAM_BANK_SIZE - 1)
@@ -49,4 +50,3 @@ typedef struct {
 BusAccessResult bus_read(uint16_t address, uint8_t* value, uint8_t* latency);
 BusAccessResult bus_write(uint16_t address, uint8_t value, uint8_t* latency);
 
-#pragma once

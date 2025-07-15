@@ -48,7 +48,7 @@ extern uint8_t gDataBus;
 
 extern uint8_t gControlBus;
 
-void emu_init(void);
+void init_emulation(void);
 void emu_update_frame();
 void emu_run_cycle(void);
 

@@ -1,3 +1,5 @@
+#pragma once
+
 #include <windows.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -27,4 +29,4 @@ void cli_about(void);
 void cli_runtime_out(const char* fmt, ...);
 void cli_runtime_err_out(const char* fmt, ...);
 
-#pragma once
+
