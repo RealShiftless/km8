@@ -245,7 +245,7 @@ static void cmd_view_regs(char* args[], int argc) {
 static void cmd_view(char* args[], int argc) {
     if (argc < 2 || argc > 3)
     {
-        cli_warn("Expected 1 arguments! (view <address> [length])");
+        cli_warn("Expected 1 or 2 arguments! (view <address> [length])");
         return;
     }
 
@@ -255,7 +255,6 @@ static void cmd_view(char* args[], int argc) {
     uint32_t length = 1;
     if (argc == 3)
         length = (uint32_t)strtoul(args[2], NULL, 0);
-
 
     for (int i = 0; i < length; i++) {
         uint8_t value;
@@ -283,7 +282,7 @@ static void cmd_view_rom(char* args[], int argc) {
 
     if (argc < 2 || argc > 3)
     {
-        cli_warn("Expected 1 arguments! (view_rom <address> [length])");
+        cli_warn("Expected 1 or 2 arguments! (view_rom <address> [length])");
         return;
     }
     
@@ -311,9 +310,8 @@ static void cmd_view_rom(char* args[], int argc) {
 
 // Views addresses in internal ram
 static void cmd_view_iram(char* args[], int argc) {
-    if (argc < 2 || argc > 3)
-    {
-        cli_warn("Expected 1 arguments! (view_iram <address> [length])");
+    if (argc < 2 || argc > 3) {
+        cli_warn("Expected 1 or 2 arguments! (view_iram <address> [length])");
         return;
     }
 
@@ -349,7 +347,7 @@ static void cmd_view_eram(char* args[], int argc) {
 
     if (argc < 2 || argc > 3)
     {
-        cli_warn("Expected 1 arguments! (view_eram <address> [length])");
+        cli_warn("Expected 1 or 2 arguments! (view_eram <address> [length])");
         return;
     }
 
@@ -378,7 +376,7 @@ static void cmd_view_eram(char* args[], int argc) {
 static void cmd_view_hram(char* args[], int argc) {
     if (argc < 2 || argc > 3)
     {
-        cli_warn("Expected 1 arguments! (view_hram <address> [length])");
+        cli_warn("Expected 1 or 2 arguments! (view_hram <address> [length])");
         return;
     }
 

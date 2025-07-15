@@ -6,7 +6,7 @@
 
 #define HRAM_SIZE 256
 
-#define CYCLES_PER_FRAME 277777
+#define CYCLES_PER_FRAME 200000
 #define BIOS_SIZE 256
 
 

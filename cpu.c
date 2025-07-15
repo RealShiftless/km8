@@ -130,6 +130,8 @@ void cpu_init() {
 static inline uint8_t op_add(uint8_t a, uint8_t b) {
     uint16_t result = a + b;
 
+    gFlags = 0;
+
     // Carry if result overflowed 8 bits
     if (result > 0xFF) gFlags |= FLAG_C;
 
@@ -148,6 +150,8 @@ static inline uint8_t op_add(uint8_t a, uint8_t b) {
 static inline uint8_t op_adc(uint8_t a, uint8_t b) {
     // Get carry flag if set
     uint8_t carry_in = (gFlags & FLAG_C) ? 1 : 0;
+
+    gFlags = 0;
 
     // Full 9-bit result for overflow/carry checking
     uint16_t result = a + b + carry_in;
@@ -172,6 +176,8 @@ static inline uint8_t op_adc(uint8_t a, uint8_t b) {
 
 static inline uint8_t op_sub(uint8_t a, uint8_t b) {
     uint16_t result = a - b;
+
+    gFlags = 0;
 
     // Carry if borrow
     if (a < b) gFlags |= FLAG_C;
@@ -207,6 +213,36 @@ static inline uint8_t op_sbc(uint8_t a, uint8_t b) {
     if (((a ^ b) & 0x80) != 0 && ((a ^ result) & 0x80) != 0) gFlags |= FLAG_V;
 
     return (uint8_t)result;
+}
+
+static inline uint8_t op_and(uint8_t a, uint8_t b) {
+    uint8_t result = a & b;
+
+    gFlags = 0;
+
+    if (result == 0) gFlags |= FLAG_Z;
+
+    return result;
+}
+
+static inline uint8_t op_or(uint8_t a, uint8_t b) {
+    uint8_t result = a | b;
+
+    gFlags = 0;
+
+    if (result == 0) gFlags |= FLAG_Z;
+
+    return result;
+}
+
+static inline uint8_t op_xor(uint8_t a, uint8_t b) {
+    uint8_t result = a ^ b;
+
+    gFlags = 0;
+
+    if (result == 0) gFlags |= FLAG_Z;
+
+    return result;
 }
 
 // Cpu Execution Func
@@ -492,7 +528,7 @@ static inline uint8_t execute_opcode(uint8_t cycle) {
         break;
     }
 
-    case OPCODE_CMPS_REG: {
+    case OPCODE_AND_REG: {
         uint8_t reg0 = gExecContext.operand_buffer[0];
         uint8_t reg1 = gExecContext.operand_buffer[1];
 
@@ -502,11 +538,11 @@ static inline uint8_t execute_opcode(uint8_t cycle) {
             break;
         }
 
-        op_sub(gRegisters[reg0], gRegisters[reg1]);
+        gRegisters[reg0] = op_and(gRegisters[reg0], gRegisters[reg1]);
         break;
     }
 
-    case OPCODE_CMPS_IMM: {
+    case OPCODE_AND_IMM: {
         uint8_t reg = gExecContext.operand_buffer[0];
         uint8_t imm = gExecContext.operand_buffer[1];
 
@@ -516,7 +552,166 @@ static inline uint8_t execute_opcode(uint8_t cycle) {
             break;
         }
 
-        op_sub(gRegisters[reg], imm);
+        gRegisters[reg] = op_and(gRegisters[reg], imm);
+        break;
+    }
+
+    case OPCODE_OR_REG: {
+        uint8_t reg0 = gExecContext.operand_buffer[0];
+        uint8_t reg1 = gExecContext.operand_buffer[1];
+
+        if (reg0 >= REGISTER_COUNT || reg1 >= REGISTER_COUNT) {
+            gCpuHaltCode = HALTCODE_INVALID_OPERAND;
+            opcodeResult = EXECUTION_FAILED;
+            break;
+        }
+
+        gRegisters[reg0] = op_or(gRegisters[reg0], gRegisters[reg1]);
+        break;
+    }
+
+    case OPCODE_OR_IMM: {
+        uint8_t reg = gExecContext.operand_buffer[0];
+        uint8_t imm = gExecContext.operand_buffer[1];
+
+        if (reg >= REGISTER_COUNT) {
+            gCpuHaltCode = HALTCODE_INVALID_OPERAND;
+            opcodeResult = EXECUTION_FAILED;
+            break;
+        }
+
+        gRegisters[reg] = op_or(gRegisters[reg], imm);
+        break;
+    }
+
+    case OPCODE_XOR_REG: {
+        uint8_t reg0 = gExecContext.operand_buffer[0];
+        uint8_t reg1 = gExecContext.operand_buffer[1];
+
+        if (reg0 >= REGISTER_COUNT || reg1 >= REGISTER_COUNT) {
+            gCpuHaltCode = HALTCODE_INVALID_OPERAND;
+            opcodeResult = EXECUTION_FAILED;
+            break;
+        }
+
+        gRegisters[reg0] = op_xor(gRegisters[reg0], gRegisters[reg1]);
+        break;
+    }
+
+    case OPCODE_XOR_IMM: {
+        uint8_t reg = gExecContext.operand_buffer[0];
+        uint8_t imm = gExecContext.operand_buffer[1];
+
+        if (reg >= REGISTER_COUNT) {
+            gCpuHaltCode = HALTCODE_INVALID_OPERAND;
+            opcodeResult = EXECUTION_FAILED;
+            break;
+        }
+
+        gRegisters[reg] = op_xor(gRegisters[reg], imm);
+        break;
+    }
+
+    case OPCODE_NOT: {
+        uint8_t reg = gExecContext.operand_buffer[0];
+
+        if (reg >= REGISTER_COUNT) {
+            gCpuHaltCode = HALTCODE_INVALID_OPERAND;
+            opcodeResult = EXECUTION_FAILED;
+            break;
+        }
+
+        gRegisters[reg] = !gRegisters[reg];
+
+        if (gRegisters[reg] == 0) gFlags |= FLAG_Z;
+        break;
+    }
+
+    case OPCODE_SHL: {
+        uint8_t reg = gExecContext.operand_buffer[0];
+
+        if (reg >= REGISTER_COUNT) {
+            gCpuHaltCode = HALTCODE_INVALID_OPERAND;
+            opcodeResult = EXECUTION_FAILED;
+            break;
+        }
+
+        gRegisters[reg] = gRegisters[reg] << 1;
+
+        if (gRegisters[reg] == 0) gFlags |= FLAG_Z;
+        break;
+    }
+
+    case OPCODE_SHR: {
+        uint8_t reg = gExecContext.operand_buffer[0];
+
+        if (reg >= REGISTER_COUNT) {
+            gCpuHaltCode = HALTCODE_INVALID_OPERAND;
+            opcodeResult = EXECUTION_FAILED;
+            break;
+        }
+
+        gRegisters[reg] = gRegisters[reg] >> 1;
+
+        if (gRegisters[reg] == 0) gFlags |= FLAG_Z;
+        break;
+    }
+
+    case OPCODE_ROL: {
+        uint8_t reg = gExecContext.operand_buffer[0];
+
+        if (reg >= REGISTER_COUNT) {
+            gCpuHaltCode = HALTCODE_INVALID_OPERAND;
+            opcodeResult = EXECUTION_FAILED;
+            break;
+        }
+
+        gRegisters[reg] = (gRegisters[reg] << 1) | (gRegisters[reg] >> 7);
+
+        if (gRegisters[reg] == 0) gFlags |= FLAG_Z;
+        break;
+    }
+
+    case OPCODE_ROR: {
+        uint8_t reg = gExecContext.operand_buffer[0];
+
+        if (reg >= REGISTER_COUNT) {
+            gCpuHaltCode = HALTCODE_INVALID_OPERAND;
+            opcodeResult = EXECUTION_FAILED;
+            break;
+        }
+
+        gRegisters[reg] = (gRegisters[reg] >> 1) | (gRegisters[reg] << 7);
+
+        if (gRegisters[reg] == 0) gFlags |= FLAG_Z;
+        break;
+    }
+
+    case OPCODE_TST_REG: {
+        uint8_t reg0 = gExecContext.operand_buffer[0];
+        uint8_t reg1 = gExecContext.operand_buffer[1];
+
+        if (reg0 >= REGISTER_COUNT || reg1 >= REGISTER_COUNT) {
+            gCpuHaltCode = HALTCODE_INVALID_OPERAND;
+            opcodeResult = EXECUTION_FAILED;
+            break;
+        }
+
+        op_and(gRegisters[reg0], gRegisters[reg1]);
+        break;
+    }
+
+    case OPCODE_TST_IMM: {
+        uint8_t reg = gExecContext.operand_buffer[0];
+        uint8_t imm = gExecContext.operand_buffer[1];
+
+        if (reg >= REGISTER_COUNT) {
+            gCpuHaltCode = HALTCODE_INVALID_OPERAND;
+            opcodeResult = EXECUTION_FAILED;
+            break;
+        }
+
+        op_and(gRegisters[reg], imm);
         break;
     }
     
