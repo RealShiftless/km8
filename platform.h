@@ -6,7 +6,7 @@
 #include <string.h>
 #include <intrin.h>
 
-#include "console.h"
+#include "cli.h"
 
 #define TILE_SIZE 8
 

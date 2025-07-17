@@ -83,7 +83,6 @@ typedef enum {
     OPCODE_HLT,
 
     OPCODE_VBLK = 0xFF
-
 } Opcode;
 
 typedef enum {

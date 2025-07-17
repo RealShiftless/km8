@@ -1,8 +1,12 @@
-#include "console.h"
+#include "cli.h"
 #include "cpu.h"
 #include "emulator.h"
 #include "bus.h"
 #include "opcodes.h"
+#include "list.h"
+
+#include "kasm.h"
+#include "lexer.h"
 
 // Values
 char gCliInputBuffer[CLI_INPUT_BUFFER_S];
@@ -182,10 +186,50 @@ static void cmd_pr_opcodes(char* args[], int argc) {
     cli_lout("Total: %d", opcodeCount);
 }
 
+// Tokenize and output the tokens
+static void cmd_lex(char* args[], int argc) {
+    if (argc != 2) {
+        cli_warn("Expected 1 arguments! (tokenize <file path>)");
+        return;
+    }
+
+    FILE* file = fopen(args[1], "r");
+
+    List tokens;
+    list_init(&tokens);
+
+    LexerResult result;
+    if ((result = lex(file, &tokens)) != LEXER_OK) {
+        cli_warn(get_lexer_result_msg(result));
+        return;
+    }
+
+    for (int i = 0; i < tokens.count; i++) {
+        Token* token = tokens.values[i];
+
+        const char* typeName = get_token_type_name(token->type);
+
+        char* value = "";
+        if(token->type != TOKEN_EOL && token->type != TOKEN_COMMA)
+            value = token->value;
+            
+        cli_lout("%-16s %s", typeName, value);
+    }
+
+    /*
+    for (int i = 0; i < tokens.count; i++) {
+        Token* token = tokens.values[i];
+
+        free(token->value);
+    }
+    */
+
+    list_dispose(&tokens);
+}
+
 // Loads a rom into memory, sets the rom loaded flags
 static void cmd_rom_load(char* args[], int argc) {
-    if (argc != 2)
-    {
+    if (argc != 2) {
         cli_warn("Expected 1 arguments! (load <file path>)");
         return;
     }
@@ -446,6 +490,8 @@ static Command gCommandTable[] = {
     { "view_eram", "Reads a value from external memory at address range. Usage: view_eram <address> [length].", cmd_view_eram },
     { "view_hram", "Reads a value from external memory at address range. Usage: view_hram <address> [length].", cmd_view_hram },
     { "emu_start", "Starts the emulation.", cmd_emu_start },
+
+    { "kasm_lex", "Lexes a file and outputs it's tokens. Usage: kasm_lex <path>.", cmd_lex }
 };
 
 // Here i tokenize a input string into seperate tokens, where it takes account of "" marked fields

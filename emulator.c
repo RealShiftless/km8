@@ -1,6 +1,6 @@
 #include "emulator.h"
 #include "cpu.h"
-#include "console.h"
+#include "cli.h"
 #include "platform.h"
 
 #include <inttypes.h>
