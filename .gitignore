@@ -77,13 +77,12 @@ CMakeUserPresets.json.user
 /build-deps/
 
 # --- Editor settings
-# Keep curated VS Code config, ignore the rest
 .vscode/*
-!.vscode/settings.json
-!.vscode/launch.json
-!.vscode/tasks.json
-!.vscode/extensions.json
-!.vscode/c_cpp_properties.json
+#!.vscode/settings.json
+#!.vscode/launch.json
+#!.vscode/tasks.json
+#!.vscode/extensions.json
+#!.vscode/c_cpp_properties.json
 
 # --- OS / misc
 .DS_Store

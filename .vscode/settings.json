@@ -1,8 +1,0 @@
-{
-    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
-    "files.associations": {
-        "stdint.h": "c",
-        "km8.h": "c",
-        "cartridge.h": "c"
-    }
-}
