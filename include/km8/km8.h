@@ -3,6 +3,7 @@
 #include <stdint.h>
 
 #include "cartridge.h"
+#include "cpu.h"
 
 #define RAM_SIZE 0x10000
 
@@ -24,7 +25,13 @@ typedef struct {
 
     uint8_t ram[RAM_SIZE];
     
+    Cpu cpu;
     Cartridge* cartridge;
 } Km8Context;
 
 Km8Context km8_init_context(void);
+
+void km8_step_cycles(Km8Context* context, uint64_t count);
+void km8_step_instructions(Km8Context* context, uint64_t count);
+void km8_step_lines(Km8Context* context, uint64_t count);
+void km8_step_frames(Km8Context* context, uint64_t count);
