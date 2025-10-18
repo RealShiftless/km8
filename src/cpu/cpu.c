@@ -1,4 +1,4 @@
-#include "cpu.h"
+#include "cpu_internal.h"
 
 #include "bus.h"
 

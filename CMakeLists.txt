@@ -53,10 +53,12 @@ endif()
 add_library(km8 ${_libtype} ${KM8_SRC})
 add_library(km8::km8 ALIAS km8)
 
-target_include_directories(km8 PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/internal>
-  $<INSTALL_INTERFACE:include>
+target_include_directories(km8
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
+  PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/internal
 )
 
 # if your core needs math/dl on *nix, add here; keep GLFW/GL out of the core

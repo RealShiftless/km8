@@ -95,11 +95,6 @@ typedef struct {
 
 typedef struct {
     uint8_t value;
-    uint8_t latency;
-} BusResult;
-
-typedef struct {
-    uint8_t value;
     uint8_t latency_cycles;
 } Km8BusAccess;
 

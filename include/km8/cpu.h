@@ -46,13 +46,20 @@ typedef struct {
 
 	uint8_t registers[REGISTER_COUNT];
 
-	uint8_t instruction_buffer[8];
-    uint8_t instruction_len;
-    uint8_t instruction_pos;
+	uint8_t instr_buf[8];
+    uint8_t instr_len;
+    uint8_t instr_pos;
+
+	uint8_t value_buf;
+	uint8_t instr_exec_cycle;
 } Cpu;
 
 uint16_t km8_cpu_get_pc(const Cpu* cpu);
+uint16_t km8_cpu_set_pc(const Cpu* cpu, uint16_t addr);
+
 uint16_t km8_cpu_get_sp(const Cpu* cpu);
+uint16_t km8_cpu_set_sp(const Cpu* cpu, uint16_t addr);
+
 uint8_t km8_cpu_get_flags(const Cpu* cpu);
 
 bool km8_cpu_is_flag_set(const Cpu* cpu, CpuFlags flag);

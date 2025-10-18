@@ -19,7 +19,7 @@ typedef enum {
     CPU_INVALID_OPCODE
 } Km8HaltCode;
 
-typedef struct {
+typedef struct Km8Context {
     uint16_t programCounter;
     uint64_t cycles;
 
