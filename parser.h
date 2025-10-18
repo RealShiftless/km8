@@ -15,6 +15,8 @@ typedef struct {
 	List* instructions;
 
 	List* currentLine;
+
+	uint32_t currentPosition;
 } ParserContext;
 
 uint8_t parse(List* tokens, List* instruction);

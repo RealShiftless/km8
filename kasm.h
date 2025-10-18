@@ -131,6 +131,11 @@ typedef struct {
     List arguments;
 } Instruction;
 
+typedef struct {
+    char* name;
+    uint32_t position;
+} Label;
+
 
 // Kasm
 typedef enum {

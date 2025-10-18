@@ -47,6 +47,9 @@ uint8_t parse_tokens(ParserContext* context) {
 			return PARSER_TOKEN_SEQUENCE_ERROR;
 
 		// I already throw an error in the tokenizer when i encounter TOKEN_UNKOWN, so i don't have to check this here
+		if (base->type <= TOKEN_LABEL_DEF) {
+
+		}
 		if (base->type <= TOKEN_INSTRUCTION)
 		{
 			if (currentInstruction.type != INSTRUCTION_TYPE_NONE)
