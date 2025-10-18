@@ -8,8 +8,11 @@
 typedef struct {
     char magic[4];   // Magic        Header: 0x0000..0x0003
 
-    uint8_t rom_banks;      // Rom Banks    Header: 0x0004
-    uint8_t ram_banks;      // Ram Banks    Header: 0x0005
+    uint8_t rom_size_code;      // Rom Banks    Header: 0x0004
+    uint32_t rom_bank_count;
+
+    uint8_t ram_size_code;
+    uint32_t ram_bank_count;      // Ram Banks    Header: 0x0005
 
     uint8_t flags;          // Flags        Header: 0x0006
 
