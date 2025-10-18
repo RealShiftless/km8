@@ -55,11 +55,12 @@ typedef struct {
 } Cpu;
 
 uint16_t km8_cpu_get_pc(const Cpu* cpu);
-uint16_t km8_cpu_set_pc(const Cpu* cpu, uint16_t addr);
+void km8_cpu_set_pc(Cpu* cpu, uint16_t addr);
 
 uint16_t km8_cpu_get_sp(const Cpu* cpu);
-uint16_t km8_cpu_set_sp(const Cpu* cpu, uint16_t addr);
+void km8_cpu_set_sp(Cpu* cpu, uint16_t addr);
 
 uint8_t km8_cpu_get_flags(const Cpu* cpu);
+void km8_cpu_set_flags(Cpu* cpu, CpuFlags flags);
 
 bool km8_cpu_is_flag_set(const Cpu* cpu, CpuFlags flag);

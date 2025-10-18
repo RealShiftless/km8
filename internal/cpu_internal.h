@@ -17,3 +17,11 @@ typedef struct {
     Km8OpcodeFn on_execute;
     uint8_t size;
 } Km8Opcode;
+
+uint8_t km8_cpu_alu_add(Cpu* cpu, uint8_t a, uint8_t b);
+uint8_t km8_cpu_alu_adc(Cpu* cpu, uint8_t a, uint8_t b);
+uint8_t km8_cpu_alu_sub(Cpu* cpu, uint8_t a, uint8_t b);
+uint8_t km8_cpu_alu_sbc(Cpu* cpu, uint8_t a, uint8_t b);
+uint8_t km8_cpu_alu_and(Cpu* cpu, uint8_t a, uint8_t b);
+uint8_t km8_cpu_alu_or(Cpu* cpu, uint8_t a, uint8_t b);
+uint8_t km8_cpu_alu_xor(Cpu* cpu, uint8_t a, uint8_t b);

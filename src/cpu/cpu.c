@@ -43,14 +43,33 @@ void km8_cpu_step(Cpu* cpu) {
 uint16_t km8_cpu_get_pc(const Cpu* cpu) {
     return cpu->registers[REG_PC + 0] | (cpu->registers[REG_PC + 1] << 8);
 }
+void km8_cpu_set_pc(Cpu* cpu, uint16_t addr) {
+    uint8_t l_byte = addr & 0xFF;
+    uint8_t h_byte = addr >> 8;
+
+    cpu->registers[REG_PC + 0] = l_byte;
+    cpu->registers[REG_PC + 1] = h_byte;
+}
 
 uint16_t km8_cpu_get_sp(const Cpu* cpu) {
     return cpu->registers[REG_SP + 0] | (cpu->registers[REG_SP + 1] << 8);
 }
+void km8_cpu_set_sp(Cpu* cpu, uint16_t addr) {
+    uint8_t l_byte = addr & 0xFF;
+    uint8_t h_byte = addr >> 8;
+
+    cpu->registers[REG_SP + 0] = l_byte;
+    cpu->registers[REG_SP + 1] = h_byte;
+}
+
 
 uint8_t km8_cpu_get_flags(const Cpu* cpu) {
     return cpu->registers[REG_FLAG];
 }
+void km8_cpu_set_flags(Cpu* cpu, CpuFlags flags) {
+    cpu->registers[REG_FLAG] = (uint8_t) flags;
+}
+
 
 bool km8_cpu_is_flag_set(const Cpu* cpu, CpuFlags flag) {
     return km8_cpu_get_flags(cpu) & flag;
