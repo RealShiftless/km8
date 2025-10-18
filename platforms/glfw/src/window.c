@@ -8,9 +8,9 @@
 
 GLFWwindow *gWindow;
 
-WindowErr km8_window_init() {
+int platform_glfw_init() {
     if (!glfwInit()) {
-        return KM8_WINDOW_GL_FAILED;
+        return 1;
     }
 
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
@@ -21,7 +21,7 @@ WindowErr km8_window_init() {
     GLFWwindow *window = glfwCreateWindow(DEFAULT_WIDTH, DEFAULT_HEIGHT, "km8", NULL, NULL);
     if (!window) {
         glfwTerminate();
-        return KM8_WINDOW_GL_FAILED;
+        return 1;
     }
 
     glfwMakeContextCurrent(window);
@@ -30,7 +30,7 @@ WindowErr km8_window_init() {
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         glfwDestroyWindow(window);
         glfwTerminate();
-        return KM8_WINDOW_GL_FAILED;
+        return 1;
     }
 
     int framebuffer_width = 0;
@@ -39,10 +39,10 @@ WindowErr km8_window_init() {
     glViewport(0, 0, framebuffer_width, framebuffer_height);
 
     gWindow = window;
-    return KM8_WINDOW_OK;
+    return 0;
 }
 
-void km8_window_shutdown() {
+void platform_glfw_shutdown() {
     if (gWindow) {
         glfwDestroyWindow(gWindow);
         gWindow = NULL;
@@ -50,15 +50,15 @@ void km8_window_shutdown() {
     glfwTerminate();
 }
 
-bool km8_window_should_close() {
+bool platform_glfw_should_close() {
     return gWindow == NULL || glfwWindowShouldClose(gWindow);
 }
 
-void km8_window_poll_events() {
+void platform_glfw_poll_events() {
     glfwPollEvents();
 }
 
-void km8_window_swap_buffers() {
+void platform_glfw_swap_buffers() {
     if (!gWindow) {
         return;
     }

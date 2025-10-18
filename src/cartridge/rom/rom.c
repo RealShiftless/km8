@@ -6,7 +6,7 @@
 static uint8_t gCurBank;
 
 // Device func
-uint8_t on_read(Km8Context* ctx, uint16_t address) {
+static uint8_t on_read(Km8Context* ctx, uint16_t address) {
     if(address < SIZE_ROM0) {
         return ctx->cartridge->rom[address];
     }
@@ -19,9 +19,9 @@ uint8_t on_read(Km8Context* ctx, uint16_t address) {
 
     return 0;
 }
-void on_write(Km8Context* ctx, uint16_t address, uint8_t value) { /* READ ONLY */ }
+static void on_write(Km8Context* ctx, uint16_t address, uint8_t value) { /* READ ONLY */ }
 
-uint8_t get_latency(uint16_t address) {
+static uint8_t get_latency(uint16_t address) {
     if(address < SIZE_ROM0) {
         return LATENCY_ROM0;
     }

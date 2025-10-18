@@ -1,7 +1,5 @@
 #pragma once
 
-#include "km8.h"
-
 #include <stdint.h>
 
 #define ROM_BANK_SIZE 0x4000
