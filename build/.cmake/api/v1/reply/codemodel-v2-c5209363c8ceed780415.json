@@ -1,0 +1,179 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"childIndexes" : 
+					[
+						1
+					],
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-Debug-cf3b6a96346d04e7d678.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.16"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						2
+					]
+				},
+				{
+					"build" : "platforms/glfw",
+					"childIndexes" : 
+					[
+						2
+					],
+					"jsonFile" : "directory-platforms.glfw-Debug-751752422a2766fa2ba8.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.16"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 1,
+					"source" : "platforms/glfw",
+					"targetIndexes" : 
+					[
+						0,
+						3
+					]
+				},
+				{
+					"build" : "platforms/glfw/glfw",
+					"childIndexes" : 
+					[
+						3
+					],
+					"jsonFile" : "directory-platforms.glfw.glfw-Debug-2266a9dfe39ef28a3a09.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.4"
+					},
+					"parentIndex" : 1,
+					"projectIndex" : 2,
+					"source" : "platforms/glfw/third_party/glfw"
+				},
+				{
+					"build" : "platforms/glfw/glfw/src",
+					"jsonFile" : "directory-platforms.glfw.glfw.src-Debug-4f964b2a38c99e46b67e.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.4"
+					},
+					"parentIndex" : 2,
+					"projectIndex" : 2,
+					"source" : "platforms/glfw/third_party/glfw/src",
+					"targetIndexes" : 
+					[
+						1,
+						4
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"childIndexes" : 
+					[
+						1
+					],
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "km8",
+					"targetIndexes" : 
+					[
+						2
+					]
+				},
+				{
+					"childIndexes" : 
+					[
+						2
+					],
+					"directoryIndexes" : 
+					[
+						1
+					],
+					"name" : "km8_glfw",
+					"parentIndex" : 0,
+					"targetIndexes" : 
+					[
+						0,
+						3
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						2,
+						3
+					],
+					"name" : "GLFW",
+					"parentIndex" : 1,
+					"targetIndexes" : 
+					[
+						1,
+						4
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 1,
+					"id" : "glad::@ed46440bd5fa458c882d",
+					"jsonFile" : "target-glad-Debug-152b85b629bb624ef325.json",
+					"name" : "glad",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 3,
+					"id" : "glfw::@e6596572ebd1690e4740",
+					"jsonFile" : "target-glfw-Debug-84ddc08d63201dbb435a.json",
+					"name" : "glfw",
+					"projectIndex" : 2
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "km8::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-km8-Debug-3e530a7e03a568fc7310.json",
+					"name" : "km8",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "km8_glfw::@ed46440bd5fa458c882d",
+					"jsonFile" : "target-km8_glfw-Debug-1e842ccd054e54350f29.json",
+					"name" : "km8_glfw",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 3,
+					"id" : "update_mappings::@e6596572ebd1690e4740",
+					"jsonFile" : "target-update_mappings-Debug-1379b86d60f8a019628a.json",
+					"name" : "update_mappings",
+					"projectIndex" : 2
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "S:/Programming/C/km8/build",
+		"source" : "S:/Programming/C/km8"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 8
+	}
+}

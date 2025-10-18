@@ -1,0 +1,10 @@
+{
+	"InstallScripts" : 
+	[
+		"S:/Programming/C/km8/build/cmake_install.cmake",
+		"S:/Programming/C/km8/build/platforms/glfw/cmake_install.cmake",
+		"S:/Programming/C/km8/build/platforms/glfw/glfw/cmake_install.cmake",
+		"S:/Programming/C/km8/build/platforms/glfw/glfw/src/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

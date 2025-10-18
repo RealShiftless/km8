@@ -1,0 +1,3 @@
+C:\mingw64\bin\cmake.exe -E rm -f CMakeFiles\km8_glfw.dir/objects.a
+C:\mingw64\bin\ar.exe qc CMakeFiles\km8_glfw.dir/objects.a @CMakeFiles\km8_glfw.dir\objects1.rsp
+C:\mingw64\bin\gcc.exe -g -Wl,--whole-archive CMakeFiles\km8_glfw.dir/objects.a -Wl,--no-whole-archive -o ..\..\bin\km8_glfw.exe -Wl,--out-implib,..\..\lib\libkm8_glfw.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\km8_glfw.dir\linkLibs.rsp

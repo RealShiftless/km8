@@ -1,0 +1,14 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : [],
+		"files" : [],
+		"nodes" : []
+	},
+	"installers" : [],
+	"paths" : 
+	{
+		"build" : "platforms/glfw/glfw/src",
+		"source" : "platforms/glfw/third_party/glfw/src"
+	}
+}

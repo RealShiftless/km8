@@ -1,0 +1,110 @@
+# --- Core build artifacts
+*.o
+*.obj
+*.lo
+*.la
+*.a
+*.lib
+*.so
+*.dylib
+*.dll
+*.exe
+*.out
+*.app
+*.i*        # preprocessed
+*.s*        # assembly
+*.pdb
+*.ilk
+*.exp
+*.idb
+
+# --- CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+CTestTestfile.cmake
+Makefile
+install_manifest.txt
+_compile_commands.json
+CMakeUserPresets.json
+CMakeUserPresets.json.user
+
+# Common build dirs
+/build/
+/build-*/
+/cmake-build-*/
+/out/
+/bin/
+/obj/
+/dist/
+/debug/
+/release/
+/Debug/
+/Release/
+/x64/
+/x86/
+
+# CLion extra
+/.idea/
+*.iml
+
+# Visual Studio (solution user data + caches)
+*.VC.db
+*.VC.VC.opendb
+/.vs/
+
+# Ninja/MSBuild/VS artifacts
+*.log
+*.tlog
+*.lastbuildstate
+*.cache
+*.rsp
+
+# Coverage / profiling
+*.gcda
+*.gcno
+*.gcov
+*.profraw
+*.profdata
+
+# Crash dumps
+*.dmp
+
+# --- Package managers / deps caches
+/vcpkg_installed/
+/.conan/
+/.conan2/
+/build-deps/
+
+# --- Editor settings
+# Keep curated VS Code config, ignore the rest
+.vscode/*
+!.vscode/settings.json
+!.vscode/launch.json
+!.vscode/tasks.json
+!.vscode/extensions.json
+!.vscode/c_cpp_properties.json
+
+# --- OS / misc
+.DS_Store
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+ehthumbs.db
+
+# --- Archives / temp
+*.zip
+*.7z
+*.tar
+*.gz
+*.tmp
+*.swp
+*.swo
+
+# --- Generated docs
+/docs/_build/
+/docs/build/
+/site/
+
+# --- Logs
+*.log
