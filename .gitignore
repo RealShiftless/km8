@@ -107,3 +107,12 @@ ehthumbs.db
 
 # --- Logs
 *.log
+# .NET build artifacts
+**/bin/
+**/obj/
+
+
+# IDE / tooling
+**/.vs/
+km8.sln
+
