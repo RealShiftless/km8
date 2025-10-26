@@ -11,6 +11,7 @@
     } while (0)
 
 Km8Result km8_bus_init() {
+    KM8_RETURN_IF_ERROR(km8_bios_register_device());
     KM8_RETURN_IF_ERROR(km8_rom_register_device());
     KM8_RETURN_IF_ERROR(km8_eram_register_device());
     KM8_RETURN_IF_ERROR(km8_wram_register_device());

@@ -6,33 +6,30 @@
 
 static uint8_t gCurBank = 0;
 
-enum {
-    KM8_WRAM_BANK_COUNT = 8, /* 8 KiB windows => 8 banks cover 64 KiB WRAM */
-    KM8_WRAM_SIZE = SIZE_WRAM0 + SIZE_WRAMN
-};
-
 static size_t wram_resolve_offset(uint16_t local_address) {
-    if (local_address < SIZE_WRAM0) {
+    if (local_address < WRAM_FIXED_SIZE) {
         return (size_t)local_address;
     }
 
-    size_t offset_in_bank = (size_t)(local_address - SIZE_WRAM0);
-    size_t bank_offset = ((size_t)gCurBank % KM8_WRAM_BANK_COUNT) * SIZE_WRAMN;
-    return SIZE_WRAM0 + ((bank_offset + offset_in_bank) % SIZE_WRAMN);
+    size_t offset_in_bank = (size_t)(local_address - WRAM_FIXED_SIZE);
+    size_t bank_offset = ((size_t)gCurBank % WRAM_BANK_COUNT) * WRAM_BANK_SIZE;
+    size_t total_banked = (size_t)WRAM_BANK_COUNT * WRAM_BANK_SIZE;
+
+    return WRAM_FIXED_SIZE + ((bank_offset + offset_in_bank) % total_banked);
 }
 
 static uint8_t on_read(Km8Context* ctx, uint16_t local_address) {
     size_t offset = wram_resolve_offset(local_address);
-    return ctx->wram[offset % KM8_WRAM_SIZE];
+    return ctx->wram[offset];
 }
 
 static void on_write(Km8Context* ctx, uint16_t local_address, uint8_t value) {
     size_t offset = wram_resolve_offset(local_address);
-    ctx->wram[offset % KM8_WRAM_SIZE] = value;
+    ctx->wram[offset] = value;
 }
 
 static uint8_t get_latency(uint16_t local_address) {
-    return (local_address < SIZE_WRAM0) ? LATENCY_WRAM0 : LATENCY_WRAMN;
+    return (local_address < WRAM_FIXED_SIZE) ? LATENCY_WRAM0 : LATENCY_WRAMN;
 }
 
 static BusDevice gDevice = {

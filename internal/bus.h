@@ -101,9 +101,9 @@ typedef struct {
 // Initialization functions
 Km8Result km8_bus_init();
 
+Km8Result km8_bios_register_device();
 Km8Result km8_rom_register_device();
 Km8Result km8_eram_register_device();
-Km8Result km8_wram_register_device();
 Km8Result km8_wram_register_device();
 
 // Runtime Func

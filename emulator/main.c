@@ -8,14 +8,17 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include <stdio.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <limits.h>
 
 #if defined(_WIN32)
+#include <conio.h>
 #include <windows.h>
 #else
 #include <time.h>
+#include <termios.h>
+#include <unistd.h>
 #endif
 
 #define KM8_FRAME_WIDTH        256
@@ -24,16 +27,46 @@
 #define KM8_TARGET_SCALE         4
 #define KM8_FRAME_INTERVAL_NS 16666667ULL
 
-static void fill_test_pattern(uint32_t* pixels, uint32_t width, uint32_t height) {
+
+static void km8_wait_for_any_key(void) {
+    puts("Press any key to continue...");
+#if defined(_WIN32)
+    _getch();
+#else
+    struct termios oldt, newt;
+    tcgetattr(STDIN_FILENO, &oldt);
+    newt = oldt;
+    newt.c_lflag &= ~(ICANON | ECHO);
+    tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+    getchar();
+    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+#endif
+}
+
+static void fill_black(uint32_t* pixels, uint32_t width, uint32_t height) {
     for (uint32_t y = 0; y < height; ++y) {
         for (uint32_t x = 0; x < width; ++x) {
-            bool vertical   = (x % KM8_GRID_CELL) == 0;
-            bool horizontal = (y % KM8_GRID_CELL) == 0;
-            bool on_axis    = vertical || horizontal;
-
-            uint32_t color = on_axis ? 0x202020u : 0x000000u;
-            pixels[y * width + x] = color;
+            pixels[y * width + x] = 0x0;
         }
+    }
+}
+
+static void fill_mem_view(Km8Context* ctx, uint32_t* pixels, uint32_t width, uint32_t height) {
+    for(int i = 0; i < REGISTER_COUNT; i++) {
+        uint8_t value = ctx->cpu.registers[i];
+        uint32_t color = ((255 - value) << 16) | value;
+
+        int x = i * 2 + 1;
+        pixels[1 * width + x] = color;
+    }
+
+    for(int i = 0; i < 8192; i++) {
+        uint8_t value = ctx->wram[i];
+        uint32_t color = ((255 - value) << 16) | value;
+
+        int x = (i % 128) * 2 + 1;
+        int y = 3 + (i / 128) * 2;
+        pixels[y * width + x] = color;
     }
 }
 
@@ -196,7 +229,7 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    fill_test_pattern(frame_buffer, KM8_FRAME_WIDTH, KM8_FRAME_HEIGHT);
+    fill_black(frame_buffer, KM8_FRAME_WIDTH, KM8_FRAME_HEIGHT);
 
     km8_init();
     Km8Context context = km8_create_context();
@@ -208,11 +241,19 @@ int main(int argc, char** argv) {
     while (!km8_platform_window_should_close(window)) {
         km8_platform_poll_events();
 
+        km8_step_cycles(&context, 175104);
+        fill_mem_view(&context, frame_buffer, KM8_FRAME_WIDTH, KM8_FRAME_HEIGHT);
+
         km8_platform_window_present(window,
                                     frame_buffer,
                                     KM8_FRAME_WIDTH * sizeof(uint32_t),
                                     KM8_FRAME_WIDTH,
                                     KM8_FRAME_HEIGHT);
+        
+        if(context.cpu.state == CPU_HALT) {
+            printf("Halted! (%d)\n", context.cpu.halt_code);
+            break;
+        }
 
         next_frame_time += KM8_FRAME_INTERVAL_NS;
         uint64_t now = km8_get_time_ns();
@@ -221,6 +262,10 @@ int main(int argc, char** argv) {
         } else {
             next_frame_time = now;
         }
+    }
+
+    if(context.cpu.state == CPU_HALT) {
+        km8_wait_for_any_key();
     }
 
     free(frame_buffer);

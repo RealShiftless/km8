@@ -5,8 +5,10 @@
 #include "cartridge.h"
 #include "cpu.h"
 
-#define WRAM_BANK_COUNT 8
-#define WRAM_SIZE (SIZE_WRAM0 + SIZE_WRAMN)
+#define WRAM_FIXED_SIZE  0x2000
+#define WRAM_BANK_COUNT  8
+#define WRAM_BANK_SIZE   0x2000
+#define WRAM_SIZE        (WRAM_FIXED_SIZE + (WRAM_BANK_COUNT * WRAM_BANK_SIZE))
 
 typedef enum {
     KM8_OK = 0,
