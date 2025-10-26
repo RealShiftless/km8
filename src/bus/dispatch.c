@@ -1,5 +1,7 @@
 #include "bus.h"
 
+#include <stddef.h>
+
 #include "km8/km8.h"
 
 static BusDevice* gDispatchTable[ADDRESS_RANGE] = {0};
