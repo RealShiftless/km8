@@ -5,6 +5,8 @@
 
 #define REGISTER_COUNT 12
 
+#define INSTR_BUF_SIZE 8
+
 #define REG_SP 7
 #define REG_PC 9
 #define REG_FLAG 11
@@ -34,8 +36,25 @@ typedef enum {
 	CPU_HALTCODE_TRAP,
 	CPU_HALTCODE_STACK_OVERFLOW,
 	CPU_HALTCODE_BUS_FAULT,
+	CPU_HALTCODE_EXEC_FAILED,
+	CPU_HALTCODE_BUFFER_OVERFLOW,
 	CPU_HALTCODE_UNKNOWN
 } CpuHaltCode;
+
+typedef enum {
+    EXECUTION_PENDING = 0,
+    EXECUTION_FAILED,
+    EXECUTION_SUCCESS
+} ExecutionResult;
+
+struct Km8Context;
+typedef ExecutionResult (*Km8OpcodeFn)(struct Km8Context* ctx);
+typedef struct  {
+	const char mnemonic[4];
+
+    Km8OpcodeFn on_execute;
+    uint8_t size;
+} Km8Opcode;
 
 typedef struct {
 	uint64_t cycles;
@@ -46,7 +65,10 @@ typedef struct {
 
 	uint8_t registers[REGISTER_COUNT];
 
-	uint8_t instr_buf[8];
+	const Km8Opcode* selected_opcode;
+	uint16_t opcode_pc;
+	uint64_t instr_count;
+	uint8_t instr_buf[INSTR_BUF_SIZE];
     uint8_t instr_len;
     uint8_t instr_pos;
 
@@ -64,3 +86,4 @@ uint8_t km8_cpu_get_flags(const Cpu* cpu);
 void km8_cpu_set_flags(Cpu* cpu, CpuFlags flags);
 
 bool km8_cpu_is_flag_set(const Cpu* cpu, CpuFlags flag);
+

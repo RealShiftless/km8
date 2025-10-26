@@ -1,43 +1,94 @@
 #include "cpu_internal.h"
-
 #include "bus.h"
 
+// Helpers
+
+
 // Runtime functions
-static void cpu_fetch_opcode(Cpu* cpu) {
-    uint16_t pc = km8_cpu_get_pc(cpu);
+static void cpu_fetch_opcode(Km8Context* ctx) {
+    uint16_t pc = km8_cpu_get_pc(&ctx->cpu);
+
+    Km8BusAccess access = km8_bus_read(ctx, pc);
+    ctx->cpu.instr_buf[0] = access.value;
+    ctx->cpu.latency_cycles += access.latency_cycles;
+
+    ctx->cpu.state = CPU_DECODE;
+
+    ctx->cpu.opcode_pc = pc;
+
+    km8_cpu_set_pc(&ctx->cpu, pc + 1);
 }
 
-static void cpu_decode(Cpu* cpu) {
+static void cpu_decode(Km8Context* ctx) {
+    ctx->cpu.selected_opcode = km8_cpu_get_opcode(ctx->cpu.instr_buf[0]);
+    ctx->cpu.state = CPU_FETCH_OPERANDS;
 }
 
-static void cpu_fetch_operands(Cpu* cpu) {
-    uint16_t pc = km8_cpu_get_pc(cpu);
+static void cpu_fetch_operands(Km8Context* ctx) {
+    
+    uint16_t pc = km8_cpu_get_pc(&ctx->cpu);
+    uint16_t pcDelta = pc - ctx->cpu.opcode_pc;
+
+    if(pcDelta >= INSTR_BUF_SIZE) {
+        km8_cpu_halt(ctx, CPU_HALTCODE_BUFFER_OVERFLOW);
+        return;
+    }
+
+    if(pcDelta == ctx->cpu.selected_opcode->size) {
+        ctx->cpu.state = CPU_EXECUTE;
+        ctx->cpu.instr_exec_cycle = 0;
+        return;
+    }
+
+    Km8BusAccess access = km8_bus_read(ctx, pc);
+    ctx->cpu.instr_buf[pcDelta] = access.value;
+    ctx->cpu.latency_cycles += access.latency_cycles;
+
+    km8_cpu_set_pc(&ctx->cpu, pc + 1);
 }
 
-static void cpu_execute(Cpu* cpu) {
+static void cpu_execute(Km8Context* ctx) {
+    ExecutionResult result = ctx->cpu.selected_opcode->on_execute(ctx);
+
+    switch(result) {
+        case EXECUTION_PENDING:
+            ctx->cpu.instr_exec_cycle++;
+            return;
+        
+        case EXECUTION_SUCCESS:
+            ctx->cpu.state = CPU_FETCH_OPCODE;
+            ctx->cpu.instr_count++;
+            return;
+
+        case EXECUTION_FAILED:
+            if(!ctx->cpu.halt_code) {
+                ctx->cpu.halt_code = CPU_HALTCODE_EXEC_FAILED;
+            }
+            ctx->cpu.state = CPU_HALT;
+            return;
+    }
 }
 
 // Public func
-void km8_cpu_step(Cpu* cpu) {
-    if(cpu->latency_cycles > 0) {
-        cpu->latency_cycles--;
+void km8_cpu_step(Km8Context* ctx) {
+    if(ctx->cpu.latency_cycles > 0) {
+        ctx->cpu.latency_cycles--;
     }
     else {
-        switch(cpu->state) {
-            case CPU_FETCH_OPCODE:      cpu_fetch_opcode(cpu);      break;
-            case CPU_DECODE:            cpu_decode(cpu);            break;
-            case CPU_FETCH_OPERANDS:    cpu_fetch_operands(cpu);    break;
-            case CPU_EXECUTE:           cpu_execute(cpu);           break;
+        switch(ctx->cpu.state) {
+            case CPU_FETCH_OPCODE:      cpu_fetch_opcode(ctx);      break;
+            case CPU_DECODE:            cpu_decode(ctx);            break;
+            case CPU_FETCH_OPERANDS:    cpu_fetch_operands(ctx);    break;
+            case CPU_EXECUTE:           cpu_execute(ctx);           break;
             case CPU_HALT:              return;
 
             default:
-                cpu->state = CPU_HALT;
-                cpu->halt_code = CPU_HALTCODE_INVALID_STATE;
+                km8_cpu_halt(ctx, CPU_HALTCODE_INVALID_STATE);
                 break;
         }
     }
 
-    cpu->cycles++;
+    ctx->cpu.cycles++;
 }
 
 uint16_t km8_cpu_get_pc(const Cpu* cpu) {

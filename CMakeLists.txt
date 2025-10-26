@@ -2,17 +2,9 @@ cmake_minimum_required(VERSION 3.16)
 project(km8 LANGUAGES C)
 
 # ---- options ---------------------------------------------------------------
-option(KM8_BUILD_SHARED        "Build km8 as a shared library"           ON)
-option(KM8_BUILD_GLFW_APP      "Build the GLFW/OpenGL frontend app"      ON)
-option(KM8_USE_SYSTEM_GLFW     "Use system GLFW (find_package)"          OFF)
-option(KM8_BUILD_GLFW_BUNDLED  "Build bundled third_party/glfw"          ON)
-option(KM8_INSTALL             "Install/export km8 package"              ON)
-
-if(NOT PROJECT_IS_TOP_LEVEL)
-  # When embedded in another project, don't force apps or vendoring by default
-  set(KM8_BUILD_GLFW_APP     OFF CACHE BOOL "" FORCE)
-  set(KM8_BUILD_GLFW_BUNDLED OFF CACHE BOOL "" FORCE)
-endif()
+option(KM8_BUILD_SHARED   "Build km8 as a shared library" ON)
+option(KM8_BUILD_EMULATOR "Build the km8 emulator frontend executable" ON)
+option(KM8_INSTALL        "Install/export km8 package"    ON)
 
 # ---- language/flags --------------------------------------------------------
 set(CMAKE_C_STANDARD 99)
@@ -41,8 +33,7 @@ endif()
 
 # ---- core library: km8 -----------------------------------------------------
 file(GLOB_RECURSE KM8_SRC CONFIGURE_DEPENDS
-  "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"      # core
-  "${CMAKE_CURRENT_SOURCE_DIR}/emulator/*.c" # your implementation (optional now)
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
 )
 
 set(_libtype STATIC)
@@ -67,8 +58,8 @@ if(UNIX AND NOT APPLE)
 endif()
 
 # ---- frontend app(s) -------------------------------------------------------
-if(KM8_BUILD_GLFW_APP)
-  add_subdirectory(platforms/glfw)
+if(KM8_BUILD_EMULATOR AND PROJECT_IS_TOP_LEVEL)
+  add_subdirectory(emulator)
 endif()
 
 # ---- install/export (optional) ---------------------------------------------

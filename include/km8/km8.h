@@ -29,7 +29,8 @@ typedef struct Km8Context {
     Cartridge* cartridge;
 } Km8Context;
 
-Km8Context km8_init_context(void);
+void km8_init(void);
+Km8Context km8_create_context(void);
 
 void km8_step_cycles(Km8Context* context, uint64_t count);
 void km8_step_instructions(Km8Context* context, uint64_t count);
