@@ -5,7 +5,8 @@
 #include "cartridge.h"
 #include "cpu.h"
 
-#define RAM_SIZE 0x10000
+#define WRAM_BANK_COUNT 8
+#define WRAM_SIZE (SIZE_WRAM0 + SIZE_WRAMN)
 
 typedef enum {
     KM8_OK = 0,
@@ -23,7 +24,7 @@ typedef struct Km8Context {
     uint16_t programCounter;
     uint64_t cycles;
 
-    uint8_t ram[RAM_SIZE];
+    uint8_t wram[WRAM_SIZE];
     
     Cpu cpu;
     Cartridge* cartridge;

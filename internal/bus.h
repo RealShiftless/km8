@@ -103,6 +103,8 @@ Km8Result km8_bus_init();
 
 Km8Result km8_rom_register_device();
 Km8Result km8_eram_register_device();
+Km8Result km8_wram_register_device();
+Km8Result km8_wram_register_device();
 
 // Runtime Func
 Km8BusAccess km8_bus_read(Km8Context* ctx, uint16_t address);
