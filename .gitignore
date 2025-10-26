@@ -116,3 +116,4 @@ ehthumbs.db
 **/.vs/
 km8.sln
 
+tools/kasm/Properties/launchSettings.json

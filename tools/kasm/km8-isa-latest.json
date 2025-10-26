@@ -1,0 +1,415 @@
+{
+    "Name": "km8",
+    "Version": 1,
+    "Instructions": [
+        {
+            "Mnemonic": "NOP",
+            "Opcode": 0,
+            "Operands": []
+        },
+        {
+            "Mnemonic": "LDR",
+            "Opcode": 1,
+            "Operands": [
+                "Register",
+                "Address"
+            ]
+        },
+        {
+            "Mnemonic": "LDR",
+            "Opcode": 2,
+            "Operands": [
+                "Register",
+                "Immediate"
+            ]
+        },
+        {
+            "Mnemonic": "STR",
+            "Opcode": 3,
+            "Operands": [
+                "Register",
+                "Address"
+            ]
+        },
+        {
+            "Mnemonic": "MOV",
+            "Opcode": 4,
+            "Operands": [
+                "Register",
+                "Register"
+            ]
+        },
+        {
+            "Mnemonic": "SWP",
+            "Opcode": 5,
+            "Operands": [
+                "Register",
+                "Register"
+            ]
+        },
+        {
+            "Mnemonic": "PSH",
+            "Opcode": 6,
+            "Operands": [
+                "Register"
+            ]
+        },
+        {
+            "Mnemonic": "POP",
+            "Opcode": 7,
+            "Operands": [
+                "Register"
+            ]
+        },
+        {
+            "Mnemonic": "CLR",
+            "Opcode": 8,
+            "Operands": [
+                "Register"
+            ]
+        },
+        {
+            "Mnemonic": "ADD",
+            "Opcode": 16,
+            "Operands": [
+                "Register",
+                "Register"
+            ]
+        },
+        {
+            "Mnemonic": "ADD",
+            "Opcode": 17,
+            "Operands": [
+                "Register",
+                "Immediate"
+            ]
+        },
+        {
+            "Mnemonic": "ADC",
+            "Opcode": 18,
+            "Operands": [
+                "Register",
+                "Register"
+            ]
+        },
+        {
+            "Mnemonic": "ADC",
+            "Opcode": 19,
+            "Operands": [
+                "Register",
+                "Immediate"
+            ]
+        },
+        {
+            "Mnemonic": "INC",
+            "Opcode": 20,
+            "Operands": [
+                "Register"
+            ]
+        },
+        {
+            "Mnemonic": "SUB",
+            "Opcode": 21,
+            "Operands": [
+                "Register",
+                "Register"
+            ]
+        },
+        {
+            "Mnemonic": "SUB",
+            "Opcode": 22,
+            "Operands": [
+                "Register",
+                "Immediate"
+            ]
+        },
+        {
+            "Mnemonic": "SBC",
+            "Opcode": 23,
+            "Operands": [
+                "Register",
+                "Register"
+            ]
+        },
+        {
+            "Mnemonic": "SBC",
+            "Opcode": 24,
+            "Operands": [
+                "Register",
+                "Immediate"
+            ]
+        },
+        {
+            "Mnemonic": "DEC",
+            "Opcode": 25,
+            "Operands": [
+                "Register"
+            ]
+        },
+        {
+            "Mnemonic": "CMP",
+            "Opcode": 26,
+            "Operands": [
+                "Register",
+                "Register"
+            ]
+        },
+        {
+            "Mnemonic": "CMP",
+            "Opcode": 27,
+            "Operands": [
+                "Register",
+                "Immediate"
+            ]
+        },
+        {
+            "Mnemonic": "AND",
+            "Opcode": 32,
+            "Operands": [
+                "Register",
+                "Register"
+            ]
+        },
+        {
+            "Mnemonic": "AND",
+            "Opcode": 33,
+            "Operands": [
+                "Register",
+                "Immediate"
+            ]
+        },
+        {
+            "Mnemonic": "OR",
+            "Opcode": 34,
+            "Operands": [
+                "Register",
+                "Register"
+            ]
+        },
+        {
+            "Mnemonic": "OR",
+            "Opcode": 35,
+            "Operands": [
+                "Register",
+                "Immediate"
+            ]
+        },
+        {
+            "Mnemonic": "XOR",
+            "Opcode": 36,
+            "Operands": [
+                "Register",
+                "Register"
+            ]
+        },
+        {
+            "Mnemonic": "XOR",
+            "Opcode": 37,
+            "Operands": [
+                "Register",
+                "Immediate"
+            ]
+        },
+        {
+            "Mnemonic": "NOT",
+            "Opcode": 38,
+            "Operands": [
+                "Register"
+            ]
+        },
+        {
+            "Mnemonic": "SHL",
+            "Opcode": 39,
+            "Operands": [
+                "Register"
+            ]
+        },
+        {
+            "Mnemonic": "SHR",
+            "Opcode": 40,
+            "Operands": [
+                "Register"
+            ]
+        },
+        {
+            "Mnemonic": "ROL",
+            "Opcode": 41,
+            "Operands": [
+                "Register"
+            ]
+        },
+        {
+            "Mnemonic": "ROR",
+            "Opcode": 42,
+            "Operands": [
+                "Register"
+            ]
+        },
+        {
+            "Mnemonic": "TST",
+            "Opcode": 43,
+            "Operands": [
+                "Register",
+                "Register"
+            ]
+        },
+        {
+            "Mnemonic": "TST",
+            "Opcode": 44,
+            "Operands": [
+                "Register",
+                "Immediate"
+            ]
+        },
+        {
+            "Mnemonic": "JMP",
+            "Opcode": 48,
+            "Operands": [
+                "Address"
+            ]
+        },
+        {
+            "Mnemonic": "JMP",
+            "Opcode": 49,
+            "Operands": [
+                "Register"
+            ]
+        },
+        {
+            "Mnemonic": "JZ",
+            "Opcode": 50,
+            "Operands": [
+                "Address"
+            ]
+        },
+        {
+            "Mnemonic": "JZ",
+            "Opcode": 51,
+            "Operands": [
+                "Register"
+            ]
+        },
+        {
+            "Mnemonic": "JNZ",
+            "Opcode": 52,
+            "Operands": [
+                "Address"
+            ]
+        },
+        {
+            "Mnemonic": "JNZ",
+            "Opcode": 53,
+            "Operands": [
+                "Register"
+            ]
+        },
+        {
+            "Mnemonic": "JC",
+            "Opcode": 54,
+            "Operands": [
+                "Address"
+            ]
+        },
+        {
+            "Mnemonic": "JC",
+            "Opcode": 55,
+            "Operands": [
+                "Register"
+            ]
+        },
+        {
+            "Mnemonic": "JNC",
+            "Opcode": 56,
+            "Operands": [
+                "Address"
+            ]
+        },
+        {
+            "Mnemonic": "JNC",
+            "Opcode": 57,
+            "Operands": [
+                "Register"
+            ]
+        },
+        {
+            "Mnemonic": "JN",
+            "Opcode": 58,
+            "Operands": [
+                "Address"
+            ]
+        },
+        {
+            "Mnemonic": "JN",
+            "Opcode": 59,
+            "Operands": [
+                "Register"
+            ]
+        },
+        {
+            "Mnemonic": "JNN",
+            "Opcode": 60,
+            "Operands": [
+                "Address"
+            ]
+        },
+        {
+            "Mnemonic": "JNN",
+            "Opcode": 61,
+            "Operands": [
+                "Register"
+            ]
+        },
+        {
+            "Mnemonic": "JV",
+            "Opcode": 62,
+            "Operands": [
+                "Address"
+            ]
+        },
+        {
+            "Mnemonic": "JV",
+            "Opcode": 63,
+            "Operands": [
+                "Register"
+            ]
+        },
+        {
+            "Mnemonic": "JNV",
+            "Opcode": 64,
+            "Operands": [
+                "Address"
+            ]
+        },
+        {
+            "Mnemonic": "JNV",
+            "Opcode": 65,
+            "Operands": [
+                "Register"
+            ]
+        },
+        {
+            "Mnemonic": "CALL",
+            "Opcode": 66,
+            "Operands": [
+                "Address"
+            ]
+        },
+        {
+            "Mnemonic": "CALL",
+            "Opcode": 67,
+            "Operands": [
+                "Register"
+            ]
+        },
+        {
+            "Mnemonic": "RET",
+            "Opcode": 68,
+            "Operands": []
+        },
+        {
+            "Mnemonic": "HLT",
+            "Opcode": 69,
+            "Operands": []
+        }
+    ]
+}
