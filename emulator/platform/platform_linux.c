@@ -259,22 +259,17 @@ void km8_platform_window_present(Km8PlatformWindow* window,
         window->image->bitmap_bit_order = LSBFirst;
     }
 
-    uint32_t scale_x = dest_width / width;
-    uint32_t scale_y = dest_height / height;
-    if (scale_x == 0) scale_x = 1;
-    if (scale_y == 0) scale_y = 1;
-
     const uint32_t* src = (const uint32_t*)pixels;
     uint8_t* dest = window->image_data;
 
     for (uint32_t y = 0; y < dest_height; ++y) {
-        uint32_t src_y = y / scale_y;
+        uint32_t src_y = (uint32_t)(((uint64_t)y * height) / dest_height);
         if (src_y >= height) {
             src_y = height - 1;
         }
 
         for (uint32_t x = 0; x < dest_width; ++x) {
-            uint32_t src_x = x / scale_x;
+            uint32_t src_x = (uint32_t)(((uint64_t)x * width) / dest_width);
             if (src_x >= width) {
                 src_x = width - 1;
             }
@@ -332,4 +327,3 @@ char* km8_platform_open_rom_dialog(void) {
 }
 
 #endif /* __linux__ */
-

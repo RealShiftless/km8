@@ -17,8 +17,8 @@
 #include <time.h>
 #endif
 
-#define KM8_FRAME_WIDTH        240
-#define KM8_FRAME_HEIGHT       135
+#define KM8_FRAME_WIDTH        256
+#define KM8_FRAME_HEIGHT       144
 #define KM8_GRID_CELL            8
 #define KM8_TARGET_SCALE         6
 #define KM8_FRAME_INTERVAL_NS 16666667ULL
