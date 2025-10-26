@@ -275,9 +275,9 @@ void km8_platform_window_present(Km8PlatformWindow* window,
             }
 
             uint32_t src_pixel = src[src_y * width + src_x];
-            uint8_t r = (uint8_t)(src_pixel & 0xFF);
+            uint8_t b = (uint8_t)(src_pixel & 0xFF);
             uint8_t g = (uint8_t)((src_pixel >> 8) & 0xFF);
-            uint8_t b = (uint8_t)((src_pixel >> 16) & 0xFF);
+            uint8_t r = (uint8_t)((src_pixel >> 16) & 0xFF);
 
             size_t dest_index = ((size_t)y * dest_width + x) * 4;
             dest[dest_index + 0] = b;
