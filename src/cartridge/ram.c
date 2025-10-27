@@ -7,13 +7,7 @@ static uint8_t gCurBank;
 
 // Helper func
 static inline uint32_t map_address(uint8_t banks, uint16_t address) {
-    // Map into banked space
-    address += gCurBank * SIZE_ERAM;
-    
-    // Fix overflow
-    address %= SIZE_ERAM * banks;
-
-    return address;
+    return (address - SIZE_ERAM + gCurBank * SIZE_ERAM) % (ERAM_BANK_SIZE * banks);
 }
 
 // Device func

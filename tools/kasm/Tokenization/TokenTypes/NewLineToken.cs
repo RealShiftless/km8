@@ -1,4 +1,5 @@
-﻿using System;
+﻿using kasm.Parsing;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,11 +7,13 @@ using System.Threading.Tasks;
 
 namespace kasm.Tokenization.TokenTypes
 {
-    internal class NewLineToken : ITokenType
+    internal class NewLineToken : ITokenHandler
     {
         public string TypeName => "New Line";
 
-        public Token? TryParse(string value)
+        TokenType ITokenHandler.Type => TokenType.Terminator;
+
+        public Token? TryParse(AssemblerContext context, string value)
         {
             if(value != "\n")
                 return null;

@@ -4,56 +4,33 @@ using System.Diagnostics;
 
 namespace kasm.Tokenization;
 
-public enum TokenType
-{
-    EndOfFile,
 
-    // Identifiers / keywords
-    Identifier,
-    Directive,
-    Register,
-    Label,
-
-    // Literals
-    IntegerLiteral,
-    AddressLiteral,
-    StringLiteral,
-
-    // Structure tokens
-    NewLine,
-}
-
-public readonly struct Token(ITokenType type, string value)
-{
-    public readonly ITokenType Type = type;
-    public readonly string Value = value;
-}
 
 public static class Tokenizer
 {
-    private static List<ITokenType> _tokenTypes = [];
+    private static List<ITokenHandler> _tokenTypes = [];
 
     private static NewLineToken _newLineTokenType = new NewLineToken();
     private static EOFToken _eofTokenType = new EOFToken();
 
     static Tokenizer()
     {
-        _tokenTypes.Add(new DirectiveToken());
+        _tokenTypes.Add(new DirectiveTokenHandler());
         _tokenTypes.Add(new InstructionToken());
         _tokenTypes.Add(new LabelToken());
         _tokenTypes.Add(new RegisterToken());
         _tokenTypes.Add(new IdentifierToken());
 
         _tokenTypes.Add(new IntegerLiteralToken());
-        _tokenTypes.Add(new AddressLiteralToken());
+        _tokenTypes.Add(new AddressLiteralTokenHandler());
     }
 
-    private static Token? TryParseToken(string value)
+    private static Token? TryParseToken(AssemblerContext context, string value)
     {
         Token? token = null;
-        foreach (ITokenType tokenType in _tokenTypes)
+        foreach (ITokenHandler tokenType in _tokenTypes)
         {
-            token = tokenType.TryParse(value);
+            token = tokenType.TryParse(context, value);
 
             if (token != null)
                 break;
@@ -62,21 +39,23 @@ public static class Tokenizer
         return token;
     }
 
-    public static List<Token> Tokenize(string str)
+    public static void Tokenize(AssemblerContext context)
     {
-        List<Token> tokens = [];
+        string cleanedSource = context.Source;
+        TokenSequenceBuilder tokens = new();
 
-        str = str.Replace(',', ' ');
-        str = str.Replace("\r", null);
+        cleanedSource = cleanedSource.Replace("\t", string.Empty);
+        cleanedSource = cleanedSource.Replace("\r", string.Empty);
+        cleanedSource = cleanedSource.Replace(',', ' ');
 
         int lineCounter = 0;
-        int argCounter = 0;
-        foreach(string line in str.Split('\n', StringSplitOptions.RemoveEmptyEntries))
+        foreach(string line in cleanedSource.Split('\n', StringSplitOptions.RemoveEmptyEntries))
         {
-            argCounter = 0;
+            int argCounter = 0;
             foreach (string tokenStr in line.Split(' ', StringSplitOptions.RemoveEmptyEntries))
             {
-                Token token = TryParseToken(tokenStr) ?? throw new InvalidOperationException($"Could not parse token! (l: {lineCounter}, a: {argCounter})");
+                Token token = TryParseToken(context, tokenStr) ?? throw new InvalidOperationException($"Could not parse token! (l: {lineCounter}, a: {argCounter})");
+
                 tokens.Add(token);
 
                 argCounter++;
@@ -89,6 +68,6 @@ public static class Tokenizer
 
         tokens.Add(new Token(_eofTokenType, ""));
 
-        return tokens;
+        context.BindTokenSequence(tokens.Build());
     }
 }

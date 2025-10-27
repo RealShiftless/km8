@@ -11,10 +11,9 @@ static uint8_t on_read(Km8Context* ctx, uint16_t address) {
         return ctx->cartridge->rom[address];
     }
     else if (address - SIZE_ROM0 < SIZE_ROMN) {
-        address -= SIZE_ROM0;
-        address += SIZE_ROMN * gCurBank;
+        uint32_t full_address = address - SIZE_ROM0 + SIZE_ROMN * gCurBank;
 
-        return ctx->cartridge->rom[address];
+        return ctx->cartridge->rom[full_address];
     }
 
     return 0;

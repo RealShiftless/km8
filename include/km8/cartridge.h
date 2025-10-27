@@ -25,5 +25,5 @@ typedef struct {
 Cartridge* km8_load_cartridge(uint8_t rom_data[], uint32_t size);
 void km8_unload_cartridge(Cartridge* cartridge);
 
-uint8_t km8_cartridge_read_rom(const Cartridge* cartridge, uint16_t offset);
-uint8_t km8_cartridge_read_ram(const Cartridge* cartridge, uint16_t offset);
+//uint8_t km8_cartridge_read_rom(const Cartridge* cartridge, uint16_t offset);
+//uint8_t km8_cartridge_read_ram(const Cartridge* cartridge, uint16_t offset);

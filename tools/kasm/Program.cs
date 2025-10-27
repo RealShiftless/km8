@@ -1,25 +1,23 @@
 using System;
 using System.IO;
-using System.Text.Json.Serialization;
-using System.Text.Json;
+using Newtonsoft.Json;
 using CommandLine;
 using kasm.Tokenization;
 using kasm;
 using static Kasm.Program;
+using kasm.Parsing;
+using kasm.Symbols;
 
 namespace Kasm;
 
 class Program
 {
     // Settings
-    private static readonly JsonSerializerOptions _jsonOptions = new()
+    private static readonly JsonSerializerSettings _jsonOptions = new()
     {
-        PropertyNameCaseInsensitive = true,
-        Converters = { new JsonStringEnumConverter() }
+        Formatting = Formatting.Indented,
+        
     };
-
-    private static InstructionSet? _instructionSet;
-    public static InstructionSet InstructionSet => _instructionSet ?? throw new InvalidOperationException("Instruction set was not initialized!");
 
 
     // CLI Args
@@ -33,13 +31,16 @@ class Program
 
         [Option('t', "target", HelpText = "ISA taget path")]
         public string? Target { get; set; }
+
+        [Option('v', "verbose", HelpText = "Prints all inbetween steps")]
+        public bool Verbose { get; set; } = false;
     }
 
 
     // Main
     static int Main(string[] args)
     {
-        return Parser.Default
+        return CommandLine.Parser.Default
             .ParseArguments<Options>(args)
             .MapResult(
                 (Options opts) => Run(opts),
@@ -50,7 +51,7 @@ class Program
 
     private static int Run(Options opts)
     {
-
+        // Gettings arguments
         string inputPath = Path.GetFullPath(opts.Input);
         string outputPath = string.IsNullOrWhiteSpace(opts.Output)
             ? Path.ChangeExtension(inputPath, ".bin") ?? (inputPath + ".bin")
@@ -60,26 +61,90 @@ class Program
             ? "km8-isa-latest.json"
             : opts.Target;
 
-        _instructionSet = LoadInstructionSet(targetPath);
+        bool verbose = opts.Verbose;
 
+        // Little print
         Console.WriteLine($"Assembling {inputPath} -> {outputPath}");
-        // TODO: add assembler logic here
 
-        string source = File.ReadAllText(inputPath);
-        List<Token> tokens = Tokenizer.Tokenize(source);
+        // Context
+        AssemblerContext context = new(inputPath, outputPath, targetPath);
 
-        Console.WriteLine("Tokens: ");
-        foreach(Token token in tokens)
+        // Instruction set
+        context.BindInstructionSet(LoadInstructionSet(targetPath));
+
+        Console.WriteLine($"Using: {context.InstructionSet.Name} v{context.InstructionSet.Version}");
+
+        context.SetSource(File.ReadAllText(inputPath));
+
+        // Tokenization
+        if (verbose)
+            Console.WriteLine("Tokenizing source...");
+
+        Tokenizer.Tokenize(context);
+
+        if (verbose) 
+            PrintTokens(context.Tokens);
+        
+        kasm.Parsing.Parser.Parse(context);
+
+        if (verbose)
         {
-            Console.WriteLine($"{token.Type.TypeName} {token.Value}");
+            PrintStatements(context.Statements);
+            PrintLabelNames(context.Symbols);
         }
+            
 
         return 0;
     }
+
+
     // Helper
     private static InstructionSet LoadInstructionSet(string path)
     {
         string json = File.ReadAllText(path);
-        return JsonSerializer.Deserialize<InstructionSet>(json, _jsonOptions) ?? throw new FileLoadException("Could not load instruction set!");
+
+        return JsonConvert.DeserializeObject<InstructionSet>(json, _jsonOptions) ?? throw new FileLoadException("Target could not be loaded!");
+    }
+
+    private static void PrintTokens(TokenSequence tokens)
+    {
+        Console.WriteLine("\nTokens: ");
+        foreach (Token token in tokens)
+        {
+            Console.WriteLine($"{token.Handler.TypeName} {token.Value}");
+        }
+    }
+    private static void PrintStatements(StatementSequence statements)
+    {
+        Console.WriteLine("\nStatements: ");
+        foreach(Statement statement in statements)
+        {
+            switch(statement.Type)
+            {
+                case StatementType.Instruction: Console.Write("ins: "); break;
+                case StatementType.Directive:   Console.Write("dir: "); break;
+                case StatementType.Label:       Console.Write("lbl: "); break;
+            }
+
+            Console.Write($"{statement.Name} ");
+
+            foreach(Statement.Operand operand in statement.Operands)
+            {
+                string type = Enum.GetName(operand.Type) ?? "unknown";
+                Console.Write($"{type.ToLower()}:{operand.Value} ");
+            }
+
+            Console.Write("\n");
+        }
+    }
+    private static void PrintLabelNames(SymbolTable symbols)
+    {
+        Console.WriteLine("\nLabel Names: ");
+
+        foreach (KeyValuePair<string, Symbol> kvp in symbols)
+        {
+            if (kvp.Value.Type == SymbolType.Address)
+                Console.WriteLine(kvp.Key);
+        }
     }
 }

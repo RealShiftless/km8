@@ -1,4 +1,6 @@
-﻿using System;
+﻿using kasm.Parsing;
+using kasm.Symbols;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,26 +9,38 @@ using System.Threading.Tasks;
 
 namespace kasm.Tokenization.TokenTypes
 {
-    public sealed class AddressLiteralToken : ITokenType
+    public sealed class AddressLiteralTokenHandler : ITokenHandler
     {
+        // Properties
         public string TypeName => "Address Literal";
 
+        TokenType ITokenHandler.Type => TokenType.Operand;
+
+
+        // Regex
         private static readonly Regex _decRegex = new(@"^\$[0-9]*$", RegexOptions.Compiled);
         private static readonly Regex _hexRegex = new(@"^\$0x[A-Fa-f0-9]*$", RegexOptions.Compiled);
         private static readonly Regex _binRegex = new(@"^\$0b[01]*$", RegexOptions.Compiled);
 
-        public Token? TryParse(string value)
+
+        // Func
+        public Token? TryParse(AssemblerContext context, string value)
         {
             if(_decRegex.IsMatch(value))
                 return new Token(this, value);
 
             if(_hexRegex.IsMatch(value))
-                return new Token(this, "" + Convert.ToInt32(value[3..], 16));
+                return new Token(this, "" + Convert.ToInt32(value[1..], 16));
 
             if (_binRegex.IsMatch(value))
-                return new Token(this, "" + Convert.ToInt32(value[3..], 2));
+                return new Token(this, "" + Convert.ToInt32(value[1..], 2));
 
             return null;
         }
+
+
+        // Interface
+        OperandType ITokenHandler.GetOperandType() => OperandType.Address;
+        SymbolType ITokenHandler.GetSymbolType() => SymbolType.Address;
     }
 }

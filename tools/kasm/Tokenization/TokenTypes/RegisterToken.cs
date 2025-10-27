@@ -1,11 +1,13 @@
+using kasm.Parsing;
 using System.Collections.Generic;
 using System.Globalization;
 
 namespace kasm.Tokenization.TokenTypes;
 
-public sealed class RegisterToken : ITokenType
+public sealed class RegisterToken : ITokenHandler
 {
-    private static readonly Dictionary<string, int> s_registerMap = new(StringComparer.OrdinalIgnoreCase)
+    // Values
+    private static readonly Dictionary<string, int> _registerMap = new(StringComparer.OrdinalIgnoreCase)
     {
         ["r0"] = 0,
         ["r1"] = 1,
@@ -24,13 +26,23 @@ public sealed class RegisterToken : ITokenType
         ["flag"] = 11,
     };
 
+
+    // Properties
     public string TypeName => "Register";
 
-    public Token? TryParse(string value)
+    TokenType ITokenHandler.Type => TokenType.Operand;
+
+
+    // Func
+    public Token? TryParse(AssemblerContext context, string value)
     {
-        if (!s_registerMap.TryGetValue(value, out int index))
+        if (!_registerMap.TryGetValue(value, out int index))
             return null;
 
         return new Token(this, index.ToString(CultureInfo.InvariantCulture));
     }
+
+
+    // Interface
+    OperandType ITokenHandler.GetOperandType() => OperandType.Register;
 }

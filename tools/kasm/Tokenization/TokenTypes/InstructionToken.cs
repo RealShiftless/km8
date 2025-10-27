@@ -1,4 +1,5 @@
-﻿using Kasm;
+﻿using kasm.Parsing;
+using Kasm;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,15 +8,19 @@ using System.Threading.Tasks;
 
 namespace kasm.Tokenization.TokenTypes
 {
-    public sealed class InstructionToken : ITokenType
+    public sealed class InstructionToken : ITokenHandler
     {
+        // Properties
         public string TypeName => "Instruction";
 
-        public Token? TryParse(string value)
-        {
-            Instruction? instruction = Program.InstructionSet.Instructions.FirstOrDefault(inst => string.Equals(inst.Mnemonic, value, StringComparison.OrdinalIgnoreCase));
+        TokenType ITokenHandler.Type => TokenType.StatementType;
 
-            return instruction != null ? new Token(this, value) : null;
-        }
+
+        // Func
+        public Token? TryParse(AssemblerContext context, string value) => context.InstructionSet.Contains(value) ? new Token(this, value) : null;
+
+
+        // Interface
+        StatementType ITokenHandler.GetStatementType() => StatementType.Instruction;
     }
 }
