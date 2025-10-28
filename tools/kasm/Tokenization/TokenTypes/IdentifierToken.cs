@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace kasm.Tokenization.TokenTypes;
 
-public sealed class IdentifierToken : ITokenHandler
+internal sealed class IdentifierToken : ITokenHandler
 {
     private static readonly Regex _parseRegex = new(@"^[A-Za-z_][A-Za-z0-9_]*$", RegexOptions.Compiled);
     

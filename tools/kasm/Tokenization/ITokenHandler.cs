@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace kasm.Tokenization
 {
-    public interface ITokenHandler
+    internal interface ITokenHandler
     {
         string TypeName { get; }
 

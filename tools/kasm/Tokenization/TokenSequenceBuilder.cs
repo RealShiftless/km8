@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace kasm.Tokenization
 {
-    public sealed class TokenSequenceBuilder
+    internal sealed class TokenSequenceBuilder
     {
         private bool _isLocked = false;
         private List<Token> _tokens = [];
@@ -25,4 +25,5 @@ namespace kasm.Tokenization
 
         public void Lock() => _isLocked = true;
     }
+
 }

@@ -1,5 +1,0 @@
-.def inc_reg r0
-loop:
-INC inc_reg
-STR inc_reg $0x8100
-JMP loop

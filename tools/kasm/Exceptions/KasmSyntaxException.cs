@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace kasm.Parsing.Exceptions
+namespace kasm.Exceptions
 {
     public class KasmSyntaxException(string message, uint line) : Exception
     {

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace kasm.Tokenization.TokenTypes
 {
-    public sealed class AddressLiteralTokenHandler : ITokenHandler
+    internal sealed class AddressLiteralTokenHandler : ITokenHandler
     {
         // Properties
         public string TypeName => "Address Literal";

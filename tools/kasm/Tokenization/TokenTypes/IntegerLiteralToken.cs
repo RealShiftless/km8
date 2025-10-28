@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace kasm.Tokenization.TokenTypes
 {
-    public sealed class IntegerLiteralToken : ITokenHandler
+    internal sealed class IntegerLiteralToken : ITokenHandler
     {
         // Properties
         public string TypeName => "Integer Literal";

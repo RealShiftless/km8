@@ -1,4 +1,5 @@
-﻿using System;
+﻿using kasm.ValueTypes;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,12 +12,12 @@ namespace kasm.Symbols
         Unknown = 0,
         Address,
         Integer,
-        String
+        //String
     }
 
-    public class Symbol(SymbolType type, object? value)
+    internal class Symbol(SymbolType type, IKasmValue? value)
     {
         public readonly SymbolType Type = type;
-        public object? Value = value;
+        public IKasmValue? Value = value;
     }
 }

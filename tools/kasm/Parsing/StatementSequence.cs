@@ -10,13 +10,26 @@ namespace kasm.Parsing
     public sealed class StatementSequence : IEnumerable
     {
         // Values
-        private readonly Statement[] _statements;
+        private readonly List<Statement> _statements = [];
+
+        private StatementBuilder _nextStatement = new();
+
+
+        // Properties
+        internal StatementBuilder Next => _nextStatement;
 
 
         // Constructor
-        internal StatementSequence(Statement[] statements)
+        internal StatementSequence() { }
+
+
+        // Func
+        public void SubmitStatement()
         {
-            _statements = statements;
+            if (_nextStatement.Type == StatementType.Unkown)
+                return;
+
+            _statements.Add(_nextStatement.Build());
         }
 
 

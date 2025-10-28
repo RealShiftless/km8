@@ -1,0 +1,12 @@
+{
+    "Name": "inc-loop",
+    "InstructionSet": "../../tools/kasm/instruction_sets/km8-isa-v1.json",
+    "RomSizeCode": 1,
+    "RamSizeCode": 0,
+
+    "SourceFiles": [ 
+        "./inc_loop.kasm",
+        "./inc_func.kasm"
+    ],
+    "Output": "./bin/inc_loop.bin"
+}

@@ -8,7 +8,7 @@ using static kasm.Parsing.Statement;
 
 namespace kasm.Parsing
 {
-    public sealed class StatementBuilder
+    internal sealed class StatementBuilder
     {
         // Values
         public StatementType Type;

@@ -4,7 +4,7 @@ using System.Globalization;
 
 namespace kasm.Tokenization.TokenTypes;
 
-public sealed class RegisterToken : ITokenHandler
+internal sealed class RegisterToken : ITokenHandler
 {
     // Values
     private static readonly Dictionary<string, int> _registerMap = new(StringComparer.OrdinalIgnoreCase)

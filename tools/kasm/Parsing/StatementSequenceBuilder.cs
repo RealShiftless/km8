@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace kasm.Parsing
 {
+    /*
     internal class StatementSequenceBuilder
     {
         // Values
@@ -36,4 +37,5 @@ namespace kasm.Parsing
             return new([.. _statements]);
         }
     }
+    */
 }

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace kasm.Symbols
 {
-    public sealed class SymbolTable : IEnumerable<KeyValuePair<string, Symbol>>
+    internal sealed class SymbolTable : IEnumerable<KeyValuePair<string, Symbol>>
     {
         // Values
         private Dictionary<string, Symbol> _symbols = [];

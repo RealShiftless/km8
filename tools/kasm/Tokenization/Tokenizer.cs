@@ -39,17 +39,16 @@ public static class Tokenizer
         return token;
     }
 
-    public static void Tokenize(AssemblerContext context)
+    internal static TokenSequence Tokenize(AssemblerContext context, string source)
     {
-        string cleanedSource = context.Source;
         TokenSequenceBuilder tokens = new();
 
-        cleanedSource = cleanedSource.Replace("\t", string.Empty);
-        cleanedSource = cleanedSource.Replace("\r", string.Empty);
-        cleanedSource = cleanedSource.Replace(',', ' ');
+        source = source.Replace("\t", string.Empty);
+        source = source.Replace("\r", string.Empty);
+        source = source.Replace(',', ' ');
 
         int lineCounter = 0;
-        foreach(string line in cleanedSource.Split('\n', StringSplitOptions.RemoveEmptyEntries))
+        foreach(string line in source.Split('\n', StringSplitOptions.RemoveEmptyEntries))
         {
             int argCounter = 0;
             foreach (string tokenStr in line.Split(' ', StringSplitOptions.RemoveEmptyEntries))
@@ -68,6 +67,6 @@ public static class Tokenizer
 
         tokens.Add(new Token(_eofTokenType, ""));
 
-        context.BindTokenSequence(tokens.Build());
+        return tokens.Build();
     }
 }

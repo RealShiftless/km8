@@ -1,0 +1,5 @@
+.def inc_reg r0
+increment_register:
+    INC inc_reg
+    STR inc_reg $0x8100
+    RET

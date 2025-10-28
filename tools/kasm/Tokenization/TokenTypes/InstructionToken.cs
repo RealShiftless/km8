@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace kasm.Tokenization.TokenTypes
 {
-    public sealed class InstructionToken : ITokenHandler
+    internal sealed class InstructionToken : ITokenHandler
     {
         // Properties
         public string TypeName => "Instruction";

@@ -1,0 +1,111 @@
+Date : 2025-10-27 23:20:19
+Directory : d:\My Folders\Programming\C\km8
+Total : 55 files,  3390 codes, 128 comments, 808 blanks, all 4326 lines
+
+Languages
++----------+------------+------------+------------+------------+------------+
+| language | files      | code       | comment    | blank      | total      |
++----------+------------+------------+------------+------------+------------+
+| C        |         19 |      1,928 |         49 |        471 |      2,448 |
+| C#       |         26 |        746 |         55 |        246 |      1,047 |
+| JSON     |          1 |        415 |          0 |          0 |        415 |
+| CMake    |          2 |        111 |          0 |         22 |        133 |
+| C++      |          4 |         94 |         24 |         41 |        159 |
+| Markdown |          1 |         74 |          0 |         28 |        102 |
+| XML      |          1 |         17 |          0 |          0 |         17 |
+| KASM     |          1 |          5 |          0 |          0 |          5 |
++----------+------------+------------+------------+------------+------------+
+
+Directories
++--------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                             | files      | code       | comment    | blank      | total      |
++--------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                                |         55 |      3,390 |        128 |        808 |      4,326 |
+| . (Files)                                                                                        |          2 |        158 |          0 |         44 |        202 |
+| emulator                                                                                         |          6 |        779 |          0 |        182 |        961 |
+| emulator (Files)                                                                                 |          2 |        257 |          0 |         54 |        311 |
+| emulator\platform                                                                                |          4 |        522 |          0 |        128 |        650 |
+| include                                                                                          |          4 |        117 |          2 |         44 |        163 |
+| include\km8                                                                                      |          4 |        117 |          2 |         44 |        163 |
+| internal                                                                                         |          3 |        111 |         26 |         43 |        180 |
+| roms                                                                                             |          1 |          5 |          0 |          0 |          5 |
+| src                                                                                              |         11 |      1,042 |         45 |        249 |      1,336 |
+| src (Files)                                                                                      |          1 |         20 |          2 |          7 |         29 |
+| src\bus                                                                                          |          2 |         56 |          0 |         21 |         77 |
+| src\cartridge                                                                                    |          3 |        150 |         16 |         46 |        212 |
+| src\cpu                                                                                          |          3 |        755 |         21 |        152 |        928 |
+| src\mem                                                                                          |          2 |         61 |          6 |         23 |         90 |
+| tools                                                                                            |         28 |      1,178 |         55 |        246 |      1,479 |
+| tools\kasm                                                                                       |         28 |      1,178 |         55 |        246 |      1,479 |
+| tools\kasm (Files)                                                                               |          5 |        604 |         13 |         58 |        675 |
+| tools\kasm\Exceptions                                                                            |          1 |         12 |          0 |          2 |         14 |
+| tools\kasm\Parsing                                                                               |          6 |        180 |          9 |         52 |        241 |
+| tools\kasm\Parsing (Files)                                                                       |          5 |        166 |          9 |         49 |        224 |
+| tools\kasm\Parsing\Exceptions                                                                    |          1 |         14 |          0 |          3 |         17 |
+| tools\kasm\Symbols                                                                               |          2 |         40 |          3 |         10 |         53 |
+| tools\kasm\Tokenization                                                                          |         14 |        342 |         30 |        124 |        496 |
+| tools\kasm\Tokenization (Files)                                                                  |          5 |        134 |          3 |         39 |        176 |
+| tools\kasm\Tokenization\TokenTypes                                                               |          9 |        208 |         27 |         85 |        320 |
++--------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++--------------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| filename                                                                                         | language | code       | comment    | blank      | total      |
++--------------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| d:\My Folders\Programming\C\km8\CMakeLists.txt                                                   | CMake    |         84 |          0 |         16 |        100 |
+| d:\My Folders\Programming\C\km8\README.md                                                        | Markdown |         74 |          0 |         28 |        102 |
+| d:\My Folders\Programming\C\km8\emulator\CMakeLists.txt                                          | CMake    |         27 |          0 |          6 |         33 |
+| d:\My Folders\Programming\C\km8\emulator\main.c                                                  | C        |        230 |          0 |         48 |        278 |
+| d:\My Folders\Programming\C\km8\emulator\platform\platform.h                                     | C++      |         22 |          0 |          9 |         31 |
+| d:\My Folders\Programming\C\km8\emulator\platform\platform_linux.c                               | C        |        264 |          0 |         66 |        330 |
+| d:\My Folders\Programming\C\km8\emulator\platform\platform_stub.c                                | C        |         47 |          0 |          8 |         55 |
+| d:\My Folders\Programming\C\km8\emulator\platform\platform_win32.c                               | C        |        189 |          0 |         45 |        234 |
+| d:\My Folders\Programming\C\km8\include\km8\cartridge.h                                          | C        |         17 |          2 |         11 |         30 |
+| d:\My Folders\Programming\C\km8\include\km8\cpu.h                                                | C        |         69 |          0 |         21 |         90 |
+| d:\My Folders\Programming\C\km8\include\km8\km8.h                                                | C        |         31 |          0 |         11 |         42 |
+| d:\My Folders\Programming\C\km8\include\km8\rom.h                                                | C++      |          0 |          0 |          1 |          1 |
+| d:\My Folders\Programming\C\km8\internal\bus.h                                                   | C++      |         69 |         24 |         27 |        120 |
+| d:\My Folders\Programming\C\km8\internal\cpu_internal.h                                          | C        |         39 |          2 |         12 |         53 |
+| d:\My Folders\Programming\C\km8\internal\km8_internal.h                                          | C++      |          3 |          0 |          4 |          7 |
+| d:\My Folders\Programming\C\km8\roms\inc_loop.kasm                                               | KASM     |          5 |          0 |          0 |          5 |
+| d:\My Folders\Programming\C\km8\src\bus\bus.c                                                    | C        |         41 |          0 |         13 |         54 |
+| d:\My Folders\Programming\C\km8\src\bus\dispatch.c                                               | C        |         15 |          0 |          8 |         23 |
+| d:\My Folders\Programming\C\km8\src\cartridge\cartridge.c                                        | C        |         84 |          9 |         22 |        115 |
+| d:\My Folders\Programming\C\km8\src\cartridge\ram.c                                              | C        |         33 |          4 |         13 |         50 |
+| d:\My Folders\Programming\C\km8\src\cartridge\rom.c                                              | C        |         33 |          3 |         11 |         47 |
+| d:\My Folders\Programming\C\km8\src\core.c                                                       | C        |         20 |          2 |          7 |         29 |
+| d:\My Folders\Programming\C\km8\src\cpu\alu.c                                                    | C        |         73 |          0 |         31 |        104 |
+| d:\My Folders\Programming\C\km8\src\cpu\cpu.c                                                    | C        |         95 |          3 |         30 |        128 |
+| d:\My Folders\Programming\C\km8\src\cpu\opcodes.c                                                | C        |        587 |         18 |         91 |        696 |
+| d:\My Folders\Programming\C\km8\src\mem\bios.c                                                   | C        |         24 |          6 |         10 |         40 |
+| d:\My Folders\Programming\C\km8\src\mem\wram.c                                                   | C        |         37 |          0 |         13 |         50 |
+| d:\My Folders\Programming\C\km8\tools\kasm\AssemblerContext.cs                                   | C#       |         29 |          3 |         11 |         43 |
+| d:\My Folders\Programming\C\km8\tools\kasm\Exceptions\KasmInternalException.cs                   | C#       |         12 |          0 |          2 |         14 |
+| d:\My Folders\Programming\C\km8\tools\kasm\InstructionSet.cs                                     | C#       |         37 |          1 |         11 |         49 |
+| d:\My Folders\Programming\C\km8\tools\kasm\Parsing\Exceptions\KasmSyntaxException.cs             | C#       |         14 |          0 |          3 |         17 |
+| d:\My Folders\Programming\C\km8\tools\kasm\Parsing\Parser.cs                                     | C#       |         58 |          0 |         16 |         74 |
+| d:\My Folders\Programming\C\km8\tools\kasm\Parsing\Statement.cs                                  | C#       |         36 |          0 |          7 |         43 |
+| d:\My Folders\Programming\C\km8\tools\kasm\Parsing\StatementBuilder.cs                           | C#       |         27 |          3 |         10 |         40 |
+| d:\My Folders\Programming\C\km8\tools\kasm\Parsing\StatementSequence.cs                          | C#       |         18 |          3 |          6 |         27 |
+| d:\My Folders\Programming\C\km8\tools\kasm\Parsing\StatementSequenceBuilder.cs                   | C#       |         27 |          3 |         10 |         40 |
+| d:\My Folders\Programming\C\km8\tools\kasm\Program.cs                                            | C#       |        106 |          9 |         36 |        151 |
+| d:\My Folders\Programming\C\km8\tools\kasm\Symbols\Symbol.cs                                     | C#       |         20 |          0 |          3 |         23 |
+| d:\My Folders\Programming\C\km8\tools\kasm\Symbols\SymbolTable.cs                                | C#       |         20 |          3 |          7 |         30 |
+| d:\My Folders\Programming\C\km8\tools\kasm\Tokenization\ITokenHandler.cs                         | C#       |         19 |          0 |          5 |         24 |
+| d:\My Folders\Programming\C\km8\tools\kasm\Tokenization\Token.cs                                 | C#       |         19 |          0 |          3 |         22 |
+| d:\My Folders\Programming\C\km8\tools\kasm\Tokenization\TokenSequence.cs                         | C#       |         18 |          3 |          6 |         27 |
+| d:\My Folders\Programming\C\km8\tools\kasm\Tokenization\TokenSequenceBuilder.cs                  | C#       |         24 |          0 |          5 |         29 |
+| d:\My Folders\Programming\C\km8\tools\kasm\Tokenization\TokenTypes\AddressLiteralTokenHandler.cs | C#       |         31 |          4 |         12 |         47 |
+| d:\My Folders\Programming\C\km8\tools\kasm\Tokenization\TokenTypes\DirectiveTokenHandler.cs      | C#       |         16 |          4 |         11 |         31 |
+| d:\My Folders\Programming\C\km8\tools\kasm\Tokenization\TokenTypes\EOFToken.cs                   | C#       |         18 |          0 |          4 |         22 |
+| d:\My Folders\Programming\C\km8\tools\kasm\Tokenization\TokenTypes\IdentifierToken.cs            | C#       |         16 |          4 |         13 |         33 |
+| d:\My Folders\Programming\C\km8\tools\kasm\Tokenization\TokenTypes\InstructionToken.cs           | C#       |         17 |          3 |          7 |         27 |
+| d:\My Folders\Programming\C\km8\tools\kasm\Tokenization\TokenTypes\IntegerLiteralToken.cs        | C#       |         31 |          4 |         12 |         47 |
+| d:\My Folders\Programming\C\km8\tools\kasm\Tokenization\TokenTypes\LabelToken.cs                 | C#       |         25 |          4 |         10 |         39 |
+| d:\My Folders\Programming\C\km8\tools\kasm\Tokenization\TokenTypes\NewLineToken.cs               | C#       |         20 |          0 |          5 |         25 |
+| d:\My Folders\Programming\C\km8\tools\kasm\Tokenization\TokenTypes\RegisterToken.cs              | C#       |         34 |          4 |         11 |         49 |
+| d:\My Folders\Programming\C\km8\tools\kasm\Tokenization\Tokenizer.cs                             | C#       |         54 |          0 |         20 |         74 |
+| d:\My Folders\Programming\C\km8\tools\kasm\kasm.csproj                                           | XML      |         17 |          0 |          0 |         17 |
+| d:\My Folders\Programming\C\km8\tools\kasm\km8-isa-latest.json                                   | JSON     |        415 |          0 |          0 |        415 |
+| Total                                                                                            |          |      3,390 |        128 |        808 |      4,326 |
++--------------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+

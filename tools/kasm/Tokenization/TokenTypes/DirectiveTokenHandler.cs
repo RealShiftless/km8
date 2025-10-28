@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace kasm.Tokenization.TokenTypes;
 
-public sealed class DirectiveTokenHandler : ITokenHandler
+internal sealed class DirectiveTokenHandler : ITokenHandler
 {
     // Properties
     public string TypeName => "Directive";

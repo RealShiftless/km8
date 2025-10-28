@@ -1,4 +1,5 @@
-﻿using System;
+﻿using kasm.ValueTypes;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -24,7 +25,7 @@ namespace kasm.Parsing
         Label
     }
 
-    public sealed class Statement(StatementType type, uint sourceLine, string name, Statement.Operand[] operands)
+    internal sealed class Statement(StatementType type, uint sourceLine, string name, Statement.Operand[] operands)
     {
         public readonly StatementType Type = type;
         public readonly uint SourceLine = sourceLine;
@@ -36,7 +37,16 @@ namespace kasm.Parsing
         public readonly struct Operand(OperandType type, string value)
         {
             public readonly OperandType Type = type;
-            public readonly string Value = value;
+            public readonly string ValueString = value;
+
+            public IKasmValue? GetValue() => Type switch
+            {
+                OperandType.Address => new AddressValue(Convert.ToUInt16(ValueString)),
+                OperandType.Register => new RegisterValue((Register)Convert.ToByte(ValueString)),
+                OperandType.Immediate => new ImmediateValue(Convert.ToByte(ValueString)),
+                OperandType.Identifier => null,
+                _ => throw new NotImplementedException($"Operand of type {Enum.GetName(Type) ?? "???"} was not implemented!")
+            };
         }
     }
 }

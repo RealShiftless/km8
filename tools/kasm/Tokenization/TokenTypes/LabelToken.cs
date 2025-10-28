@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace kasm.Tokenization.TokenTypes
 {
-    public sealed class LabelToken : ITokenHandler
+    internal sealed class LabelToken : ITokenHandler
     {
         // Properties
         public string TypeName => "Label";

@@ -7,17 +7,18 @@ using System.Threading.Tasks;
 
 namespace kasm.Tokenization
 {
-    public sealed class TokenSequence : IEnumerable
+    internal sealed class TokenSequence : IEnumerable
     {
         // Values
         private Token[] _tokens;
 
 
         // Constructor
-        internal TokenSequence(Token[] tokens)
-        {
-            _tokens = tokens;
-        }
+        internal TokenSequence(Token[] tokens) => _tokens = tokens;
+
+
+        // Func
+        public Token Get(int index) => _tokens[index];
 
 
         // Interface

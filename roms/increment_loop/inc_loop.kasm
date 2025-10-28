@@ -1,0 +1,3 @@
+loop:
+CALL increment_register
+JMP loop
